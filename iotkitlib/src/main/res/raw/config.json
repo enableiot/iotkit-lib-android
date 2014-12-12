@@ -1,0 +1,88 @@
+{
+    "cmp_catalog_id": "temperature.v1.0",
+    "device_loc": [
+        88.34,
+        64.22047,
+        -20
+    ],
+    "gateway_id": null,
+    "host": "dashboard.us.enableiot.com",
+    "port": 443,
+    "isSecure": true,
+    "apipath": {
+        "account_management": {
+            "create_an_account" : "/v1/api/accounts",
+            "get_account_information" : "/v1/api/accounts/{data_account_id}",
+            "get_account_activation_code" : "/v1/api/accounts/{data_account_id}/activationcode",
+            "update_an_account_name" : "/v1/api/accounts/{data_account_id}",
+            "delete_an_account_name" : "/v1/api/accounts/{data_account_id}",
+            "add_an_user_to_account" : "/v1/api/accounts/{data_account_id}/users/{invitee_user_id}",
+            "renew_account_activation" : "/v1/api/accounts/{data_account_id}/activationcode/refresh",
+            "get_user_associated_with_account" : "/v1/api/accounts/{data_account_id}/users",
+            "update_user_associated_with_account" : "/v1/api/accounts/{data_account_id}/users/{user_account_id}"
+        },
+        "authorization": {
+            "new_auth_token" : "/v1/api/auth/token",
+            "auth_token_info" : "/v1/api/auth/tokeninfo",
+            "me_info" : "/v1/ui/auth/me"
+        },
+        "device_management": {
+            "list_all_devices": "/v1/api/accounts/{data_account_id}/devices",
+            "get_device_info": "/v1/api/accounts/{data_account_id}/devices/{other_device_id}",
+            "get_my_device_info": "/v1/api/accounts/{data_account_id}/devices/{device_id}",
+            "create_a_device": "/v1/api/accounts/{data_account_id}/devices",
+            "update_a_device": "/v1/api/accounts/{data_account_id}/devices/{device_id}",
+            "activate_a_device": "/v1/api/accounts/{data_account_id}/devices/{device_id}/activation",
+            "delete_a_device": "/v1/api/accounts/{data_account_id}/devices/{other_device_id}",
+            "add_a_component": "/v1/api/accounts/{data_account_id}/devices/{device_id}/components",
+            "delete_a_component": "/v1/api/accounts/{data_account_id}/devices/{device_id}/components/{cid}",
+            "list_all_tags":"/v1/api/accounts/{data_account_id}/devices/tags",
+            "list_all_attributes":"/v1/api/accounts/{data_account_id}/devices/attributes"
+        },
+        "data": {
+            "submit_data": "/v1/api/data/{device_id}",
+            "retrieve_data": "/v1/api/accounts/{data_account_id}/data/search"
+        },
+        "cmpcatalog": {
+            "list_components": "/v1/api/accounts/{data_account_id}/cmpcatalog",
+            "list_components_detailed": "/v1/api/accounts/{data_account_id}/cmpcatalog?full=true",
+            "get_component_details": "/v1/api/accounts/{data_account_id}/cmpcatalog/{cmp_catalog_id}",
+            "create_an_cmp_catalog": "/v1/api/accounts/{data_account_id}/cmpcatalog",
+            "update_an_cmp_catalog": "/v1/api/accounts/{data_account_id}/cmpcatalog/{cmp_catalog_id}"
+        },
+        "invitation_management": {
+            "get_list_of_invitation" : "/v1/api/accounts/{data_account_id}/invites",
+            "get_invitation_list_send_to_specific_user" : "/v1/api/invites/{email}",
+            "create_invitation" : "/v1/api/accounts/{data_account_id}/invites",
+            "delete_invitations" : "/v1/api/accounts/{data_account_id}/invites/{email}"
+        },
+        "user_management": {
+            "create_a_user" : "/v1/api/users",
+            "get_user_information" : "/v1/api/users/{user_id}",
+            "update_user_attributes" : "/v1/api/users/{user_id}",
+            "accept_terms_and_conditions" : "/v1/api/users/{user_id}",
+            "delete_a_user" : "/v1/api/users/{user_id}",
+            "request_change_password" : "/v1/api/users/forgot_password",
+            "change_password" : "/v1/api/users/{email}/change_password"
+        },
+        "rule_management": {
+            "create_a_rule" : "/v1/api/accounts/{data_account_id}/rules",
+            "update_a_rule" : "/v1/api/accounts/{data_account_id}/rules/{rule_id}",
+            "get_list_of_rules" : "/v1/api/accounts/{data_account_id}/rules",
+            "get_one_rule_info" : "/v1/api/accounts/{data_account_id}/rules/{rule_id}",
+            "create_a_rule_as_draft" : "/v1/api/accounts/{data_account_id}/rules/draft",
+            "update_status_of_a_rule" : "/v1/api/accounts/{data_account_id}/rules/{rule_id}/status",
+            "delete_a_draft_rule" : "/v1/api/accounts/{data_account_id}/rules/draft/{rule_id}"
+        },
+        "alert_management": {
+            "create_new_alert" : "/v1/api/alerts",
+            "get_list_of_alerts" : "/v1/api/accounts/{data_account_id}/alerts",
+            "get_alert_information" : "/v1/api/accounts/{data_account_id}/alerts/{alert_id}",
+            "reset_alert" : "/v1/api/accounts/{data_account_id}/alerts/{alert_id}/reset",
+            "update_alert_status" : "/v1/api/accounts/{data_account_id}/alerts/{alert_id}/status/{status_name}",
+            "add_comment_to_alert" : "/v1/api/accounts/{data_account_id}/alerts/{alert_id}/comments"
+        },
+        "advanced_data_inquiry" : "/v1/api/accounts/{data_account_id}/data/search/advanced",
+        "aggregated_report_interface" : "/v1/api/accounts/{data_account_id}/data/report"
+    }
+}
