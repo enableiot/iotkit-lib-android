@@ -22,9 +22,9 @@
  */
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.LibModules.ComponentTypesCatalog.ComponentTypesCatalog;
-import com.intel.iotkitlib.LibModules.ComponentTypesCatalog.CreateOrUpdateComponentCatalog;
-import com.intel.iotkitlib.LibModules.RequestStatusHandler;
+import com.intel.iotkitlib.ComponentTypesCatalog;
+import com.intel.iotkitlib.models.CreateOrUpdateComponentCatalog;
+import com.intel.iotkitlib.RequestStatusHandler;
 
 import org.json.JSONException;
 

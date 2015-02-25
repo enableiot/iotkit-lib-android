@@ -22,9 +22,9 @@
  */
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.LibModules.DataManagement.DataManagement;
-import com.intel.iotkitlib.LibModules.DataManagement.RetrieveData;
-import com.intel.iotkitlib.LibModules.RequestStatusHandler;
+import com.intel.iotkitlib.DataManagement;
+import com.intel.iotkitlib.models.RetrieveData;
+import com.intel.iotkitlib.RequestStatusHandler;
 
 import org.json.JSONException;
 

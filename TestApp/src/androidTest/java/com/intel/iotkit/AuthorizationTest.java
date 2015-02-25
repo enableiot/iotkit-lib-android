@@ -22,8 +22,8 @@
  */
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.LibModules.AuthorizationManagement.Authorization;
-import com.intel.iotkitlib.LibModules.RequestStatusHandler;
+import com.intel.iotkitlib.Authorization;
+import com.intel.iotkitlib.RequestStatusHandler;
 
 
 public class AuthorizationTest extends ApplicationTest {

@@ -22,8 +22,8 @@
  */
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.LibModules.InvitationManagement;
-import com.intel.iotkitlib.LibModules.RequestStatusHandler;
+import com.intel.iotkitlib.InvitationManagement;
+import com.intel.iotkitlib.RequestStatusHandler;
 
 import org.json.JSONException;
 

@@ -20,28 +20,24 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.intel.iotkit;
+package com.intel.iotkitlib.utils.AttributeFilters;
 
-import android.content.Context;
-import android.test.ActivityUnitTestCase;
+import java.util.LinkedList;
+import java.util.List;
 
-import com.intel.iotkitlib.utils.Utilities;
 
-import java.lang.ref.WeakReference;
+public class AttributeFilter {
+    public String filterName;
+    public List<String> filterValues;
 
-public class ApplicationTest extends ActivityUnitTestCase<MyActivity> {
-    public ApplicationTest() {
-        super(MyActivity.class);
+    public AttributeFilter(String filterName) {
+        this.filterName = filterName;
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        Utilities.createSharedPreferences(new WeakReference<Context>(getInstrumentation().getTargetContext()));
+    public void addAttributeFilterValue(String filterValue) {
+        if (this.filterValues == null) {
+            this.filterValues = new LinkedList<String>();
+        }
+        this.filterValues.add(filterValue);
     }
-
-    /*public void testSharedPreferences() {
-        assertNotNull(Utilities.sharedPreferences);
-        assertNotNull(Utilities.editor);
-    }*/
 }

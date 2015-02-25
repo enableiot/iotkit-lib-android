@@ -20,28 +20,27 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.intel.iotkit;
+package com.intel.iotkitlib.models;
 
-import android.content.Context;
-import android.test.ActivityUnitTestCase;
+import java.util.LinkedList;
+import java.util.List;
 
-import com.intel.iotkitlib.utils.Utilities;
+public class CreateRuleActions {
+    String ruleActionType;
+    List<String> target;
 
-import java.lang.ref.WeakReference;
-
-public class ApplicationTest extends ActivityUnitTestCase<MyActivity> {
-    public ApplicationTest() {
-        super(MyActivity.class);
+    public void setRuleActionType(String ruleActionType) {
+        this.ruleActionType = ruleActionType;
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        Utilities.createSharedPreferences(new WeakReference<Context>(getInstrumentation().getTargetContext()));
+    public void addRuleActionTarget(String target) {
+        if (this.target == null) {
+            this.target = new LinkedList<String>();
+        }
+        this.target.add(target);
     }
 
-    /*public void testSharedPreferences() {
-        assertNotNull(Utilities.sharedPreferences);
-        assertNotNull(Utilities.editor);
-    }*/
+    public String getRuleActionType() { return ruleActionType; }
+
+    public List<String> getRuleActionTarget() { return target; }
 }

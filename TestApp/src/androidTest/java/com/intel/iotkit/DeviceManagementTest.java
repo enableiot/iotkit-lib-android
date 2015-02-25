@@ -22,9 +22,9 @@
  */
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.LibModules.DeviceManagement.CreateDevice;
-import com.intel.iotkitlib.LibModules.DeviceManagement.DeviceManagement;
-import com.intel.iotkitlib.LibModules.RequestStatusHandler;
+import com.intel.iotkitlib.models.CreateDevice;
+import com.intel.iotkitlib.DeviceManagement;
+import com.intel.iotkitlib.RequestStatusHandler;
 
 import org.json.JSONException;
 
@@ -52,7 +52,7 @@ public class DeviceManagementTest extends ApplicationTest {
         //create a device
         CreateDevice objDeviceDetails = new
                 CreateDevice("iotkit_wrapper-Device-retrieve-data2", "devTest", "devTest");
-        objDeviceDetails.addLocationInfo(12.0, 16.0, 18.0);
+        objDeviceDetails.setLocation(12.0, 16.0, 18.0);
         objDeviceDetails.addTagName("Intel ODC test dev");
         objDeviceDetails.addAttributeInfo("processor", "Intel");
         objDeviceDetails.addAttributeInfo("Camera", "8Mp with flash");
@@ -84,7 +84,7 @@ public class DeviceManagementTest extends ApplicationTest {
         objDeviceDetails.addAttributeInfo("Wifi", "Yes");*/
         CreateDevice objDeviceDetails = new
                 CreateDevice("iot dev", null, "devTest");
-        objDeviceDetails.addLocationInfo(10.0, 15.0, 15.0);
+        objDeviceDetails.setLocation(10.0, 15.0, 15.0);
         objDeviceDetails.addTagName("intel");
         objDeviceDetails.addAttributeInfo("processor", "AMD");
         objDeviceDetails.addAttributeInfo("Camera", "5Mp with out flash");

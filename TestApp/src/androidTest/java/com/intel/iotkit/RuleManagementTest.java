@@ -22,11 +22,11 @@
  */
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.LibModules.RequestStatusHandler;
-import com.intel.iotkitlib.LibModules.RuleManagement.CreateRule;
-import com.intel.iotkitlib.LibModules.RuleManagement.CreateRuleActions;
-import com.intel.iotkitlib.LibModules.RuleManagement.CreateRuleConditionValues;
-import com.intel.iotkitlib.LibModules.RuleManagement.RuleManagement;
+import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.models.CreateRule;
+import com.intel.iotkitlib.models.CreateRuleActions;
+import com.intel.iotkitlib.models.CreateRuleConditionValues;
+import com.intel.iotkitlib.RuleManagement;
 
 import org.json.JSONException;
 

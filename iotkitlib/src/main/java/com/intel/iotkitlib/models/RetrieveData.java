@@ -20,28 +20,44 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.intel.iotkit;
+package com.intel.iotkitlib.models;
 
-import android.content.Context;
-import android.test.ActivityUnitTestCase;
+import java.util.LinkedList;
+import java.util.List;
 
-import com.intel.iotkitlib.utils.Utilities;
 
-import java.lang.ref.WeakReference;
+public class RetrieveData {
+    Long fromTimeInMillis;
+    Long toTimeInMillis;
+    List<String> deviceList;
+    List<String> componentIdList;
 
-public class ApplicationTest extends ActivityUnitTestCase<MyActivity> {
-    public ApplicationTest() {
-        super(MyActivity.class);
+    public RetrieveData(Long fromTimeInMillis, Long toTimeInMillis) {
+        this.fromTimeInMillis = fromTimeInMillis;
+        this.toTimeInMillis = toTimeInMillis;
+        this.deviceList = null;
+        this.componentIdList = null;
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        Utilities.createSharedPreferences(new WeakReference<Context>(getInstrumentation().getTargetContext()));
+    public void addDeviceId(String deviceId) {
+        if (deviceList == null) {
+            deviceList = new LinkedList<String>();
+        }
+        deviceList.add(deviceId);
     }
 
-    /*public void testSharedPreferences() {
-        assertNotNull(Utilities.sharedPreferences);
-        assertNotNull(Utilities.editor);
-    }*/
+    public void addComponentId(String componentId) {
+        if (componentIdList == null) {
+            componentIdList = new LinkedList<String>();
+        }
+        componentIdList.add(componentId);
+    }
+
+    public Long getFromTimeInMillis() { return fromTimeInMillis; }
+
+    public Long getToTimeInMillis() { return toTimeInMillis; }
+
+    public List<String> getDeviceList() { return deviceList; }
+
+    public List<String> getComponentIdList() { return componentIdList; }
 }

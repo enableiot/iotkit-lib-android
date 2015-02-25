@@ -32,9 +32,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.intel.iotkitlib.LibModules.AuthorizationManagement.Authorization;
-import com.intel.iotkitlib.LibModules.RequestStatusHandler;
-import com.intel.iotkitlib.LibUtils.Utilities;
+import com.intel.iotkitlib.Authorization;
+import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.utils.Utilities;
 
 import java.lang.ref.WeakReference;
 

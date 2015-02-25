@@ -23,8 +23,8 @@
 
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.LibModules.RequestStatusHandler;
-import com.intel.iotkitlib.LibModules.UserManagement;
+import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.UserManagement;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
