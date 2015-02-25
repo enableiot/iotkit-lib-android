@@ -26,8 +26,7 @@ import android.util.Log;
 
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpTaskHandler;
-import com.intel.iotkitlib.utils.AttributeFilters.AttributeFilter;
-import com.intel.iotkitlib.utils.AttributeFilters.AttributeFilterList;
+import com.intel.iotkitlib.models.AttributeFilter;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -54,8 +53,8 @@ public class AdvancedDataInquiry extends ParentModule {
 
     Boolean showMeasureLocation;
 
-    AttributeFilterList devCompAttributeFilter;
-    AttributeFilterList measurementAttributeFilter;
+    List<AttributeFilter> devCompAttributeFilter;
+    List<AttributeFilter> measurementAttributeFilter;
     AttributeFilter valueFilter;
 
     Integer componentRowLimit;
@@ -151,10 +150,9 @@ public class AdvancedDataInquiry extends ParentModule {
      */
     public void addDevCompAttributeFilter(AttributeFilter attributeFilter) {
         if (this.devCompAttributeFilter == null) {
-            this.devCompAttributeFilter = new AttributeFilterList();
-            this.devCompAttributeFilter.filterData = new LinkedList<AttributeFilter>();
+            this.devCompAttributeFilter = new LinkedList<AttributeFilter>();
         }
-        this.devCompAttributeFilter.filterData.add(attributeFilter);
+        this.devCompAttributeFilter.add(attributeFilter);
     }
 
     /**
@@ -163,10 +161,9 @@ public class AdvancedDataInquiry extends ParentModule {
      */
     public void addMeasurementAttributeFilter(AttributeFilter attributeFilter) {
         if (this.measurementAttributeFilter == null) {
-            this.measurementAttributeFilter = new AttributeFilterList();
-            this.measurementAttributeFilter.filterData = new LinkedList<AttributeFilter>();
+            this.measurementAttributeFilter = new LinkedList<AttributeFilter>();
         }
-        this.measurementAttributeFilter.filterData.add(attributeFilter);
+        this.measurementAttributeFilter.add(attributeFilter);
     }
 
     /**
@@ -292,7 +289,7 @@ public class AdvancedDataInquiry extends ParentModule {
         }
         if (this.devCompAttributeFilter != null) {
             JSONObject devCompAttributeJson = new JSONObject();
-            for (AttributeFilter attributeFilter : this.devCompAttributeFilter.filterData) {
+            for (AttributeFilter attributeFilter : this.devCompAttributeFilter) {
                 JSONArray filterValuesArray = new JSONArray();
                 for (String filterValue : attributeFilter.filterValues) {
                     filterValuesArray.put(filterValue);
@@ -303,7 +300,7 @@ public class AdvancedDataInquiry extends ParentModule {
         }
         if (this.measurementAttributeFilter != null) {
             JSONObject measurementAttributeJson = new JSONObject();
-            for (AttributeFilter attributeFilter : this.measurementAttributeFilter.filterData) {
+            for (AttributeFilter attributeFilter : this.measurementAttributeFilter) {
                 JSONArray filterValuesArray = new JSONArray();
                 for (String filterValue : attributeFilter.filterValues) {
                     filterValuesArray.put(filterValue);

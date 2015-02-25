@@ -28,47 +28,40 @@ import org.apache.http.message.BasicNameValuePair;
 import java.util.LinkedList;
 import java.util.List;
 
-//inner class to hold device details
-public class CreateDevice {
-    private String deviceName;
-    private String deviceId;
-    private String gatewayId;
-    private List<String> tags;
-    private List<NameValuePair> attributes;
-    private List<Double> location;
 
-    public CreateDevice(String deviceName, String deviceId, String gatewayId) {
-        this.deviceName = deviceName;
-        this.deviceId = deviceId;
-        this.gatewayId = gatewayId;
-        this.location = new LinkedList<Double>();
-        this.tags = new LinkedList<String>();
-        this.attributes = new LinkedList<NameValuePair>();
+public class RuleConditionValues {
+    private List<NameValuePair> components;
+    private String ruleConditionType;
+    private List<String> values;
+    private String ruleConditionValuesOperatorName;
+
+    public void addConditionComponent(String keyName, String keyValue) {
+        if (this.components == null) {
+            this.components = new LinkedList<NameValuePair>();
+        }
+        this.components.add(new BasicNameValuePair(keyName, keyValue));
     }
 
-    public void setLocation(Double latitude, Double longitude, Double height) {
-        location.add(latitude);
-        location.add(longitude);
-        location.add(height);
+    public void setConditionType(String ruleConditionType) {
+        this.ruleConditionType = ruleConditionType;
     }
 
-    public void addTagName(String tagName) {
-        tags.add(tagName);
+    public void addConditionValues(String values) {
+        if (this.values == null) {
+            this.values = new LinkedList<String>();
+        }
+        this.values.add(values);
     }
 
-    public void addAttributeInfo(String name, String value) {
-        attributes.add(new BasicNameValuePair(name, value));
+    public void setConditionOperator(String ruleConditionValuesOperatorName) {
+        this.ruleConditionValuesOperatorName = ruleConditionValuesOperatorName;
     }
 
-    public String getDeviceName() { return deviceName; }
+    public List<NameValuePair> getComponents() { return components; }
 
-    public String getDeviceId() { return deviceId; }
+    public String getRuleConditionType() { return ruleConditionType; }
 
-    public String getGatewayId() { return gatewayId; }
+    public List<String> getValues() { return values; }
 
-    public List<String> getTags() { return tags; }
-
-    public List<NameValuePair> getAttributes() { return attributes; }
-
-    public List<Double> getLocation() { return location; }
+    public String getRuleConditionValuesOperatorName() { return ruleConditionValuesOperatorName; }
 }

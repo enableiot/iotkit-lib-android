@@ -22,14 +22,14 @@
  */
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.ComponentTypesCatalog;
-import com.intel.iotkitlib.models.CreateOrUpdateComponentCatalog;
+import com.intel.iotkitlib.ComponentCatalogManagement;
+import com.intel.iotkitlib.models.ComponentCatalog;
 import com.intel.iotkitlib.RequestStatusHandler;
 
 import org.json.JSONException;
 
 
-public class ComponentTypesCatalogTest extends ApplicationTest {
+public class ComponentCatalogManagementTest extends ApplicationTest {
     private boolean serverResponse = false;
 
     private void waitForServerResponse(Object object) {
@@ -41,7 +41,7 @@ public class ComponentTypesCatalogTest extends ApplicationTest {
     }
 
     public void testListAllComponentTypesCatalog() {
-        ComponentTypesCatalog objCatalog = new ComponentTypesCatalog(new RequestStatusHandler() {
+        ComponentCatalogManagement objCatalog = new ComponentCatalogManagement(new RequestStatusHandler() {
             @Override
             public void readResponse(int responseCode, String response) {
                 //setResponse(responseCode, response);
@@ -54,7 +54,7 @@ public class ComponentTypesCatalogTest extends ApplicationTest {
     }
 
     public void testListAllDetailsOfComponentTypesCatalog() {
-        ComponentTypesCatalog objCatalog = new ComponentTypesCatalog(new RequestStatusHandler() {
+        ComponentCatalogManagement objCatalog = new ComponentCatalogManagement(new RequestStatusHandler() {
             @Override
             public void readResponse(int responseCode, String response) {
                 //setResponse(responseCode, response);
@@ -67,7 +67,7 @@ public class ComponentTypesCatalogTest extends ApplicationTest {
     }
 
     public void testListComponentTypeDetails() {
-        ComponentTypesCatalog objCatalog = new ComponentTypesCatalog(new RequestStatusHandler() {
+        ComponentCatalogManagement objCatalog = new ComponentCatalogManagement(new RequestStatusHandler() {
             @Override
             public void readResponse(int responseCode, String response) {
                 //setResponse(responseCode, response);
@@ -80,7 +80,7 @@ public class ComponentTypesCatalogTest extends ApplicationTest {
     }
 
     public void testCreateCustomComponent() throws JSONException {
-        ComponentTypesCatalog objCatalog = new ComponentTypesCatalog(new RequestStatusHandler() {
+        ComponentCatalogManagement objCatalog = new ComponentCatalogManagement(new RequestStatusHandler() {
             @Override
             public void readResponse(int responseCode, String response) {
                 //setResponse(responseCode, response);
@@ -88,8 +88,8 @@ public class ComponentTypesCatalogTest extends ApplicationTest {
                 serverResponse = true;
             }
         });
-        CreateOrUpdateComponentCatalog createComponentCatalog = new
-                CreateOrUpdateComponentCatalog("IntelODCAC3", "1.0", "actuator", "Number", "float", "Degrees Celsius", "timeSeries");
+        ComponentCatalog createComponentCatalog = new
+                ComponentCatalog("IntelODCAC3", "1.0", "actuator", "Number", "float", "Degrees Celsius", "timeSeries");
         createComponentCatalog.setMinValue(5.0);
         createComponentCatalog.setMaxValue(100.0);
         createComponentCatalog.setCommandString("Intel actuator");
@@ -103,7 +103,7 @@ public class ComponentTypesCatalogTest extends ApplicationTest {
     }
 
     public void testUpdateAComponent() throws JSONException {
-        ComponentTypesCatalog objCatalog = new ComponentTypesCatalog(new RequestStatusHandler() {
+        ComponentCatalogManagement objCatalog = new ComponentCatalogManagement(new RequestStatusHandler() {
             @Override
             public void readResponse(int responseCode, String response) {
                 //setResponse(responseCode, response);
@@ -111,8 +111,8 @@ public class ComponentTypesCatalogTest extends ApplicationTest {
                 serverResponse = true;
             }
         });
-        CreateOrUpdateComponentCatalog updateComponentCatalog = new
-                CreateOrUpdateComponentCatalog(null, null, "actuator", "Number", "float", "Degrees Celsius", "timeSeries");
+        ComponentCatalog updateComponentCatalog = new
+                ComponentCatalog(null, null, "actuator", "Number", "float", "Degrees Celsius", "timeSeries");
         updateComponentCatalog.setMinValue(10.0);
         updateComponentCatalog.setMaxValue(200.0);
         updateComponentCatalog.setCommandString("Intel actuator");

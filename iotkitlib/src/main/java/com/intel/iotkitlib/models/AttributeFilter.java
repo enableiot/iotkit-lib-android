@@ -26,38 +26,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class RetrieveData {
-    Long fromTimeInMillis;
-    Long toTimeInMillis;
-    List<String> deviceList;
-    List<String> componentIdList;
+public class AttributeFilter {
+    public String filterName;
+    public List<String> filterValues;
 
-    public RetrieveData(Long fromTimeInMillis, Long toTimeInMillis) {
-        this.fromTimeInMillis = fromTimeInMillis;
-        this.toTimeInMillis = toTimeInMillis;
-        this.deviceList = null;
-        this.componentIdList = null;
+    public AttributeFilter(String filterName) {
+        this.filterName = filterName;
     }
 
-    public void addDeviceId(String deviceId) {
-        if (deviceList == null) {
-            deviceList = new LinkedList<String>();
+    public void addAttributeFilterValue(String filterValue) {
+        if (this.filterValues == null) {
+            this.filterValues = new LinkedList<String>();
         }
-        deviceList.add(deviceId);
+        this.filterValues.add(filterValue);
     }
-
-    public void addComponentId(String componentId) {
-        if (componentIdList == null) {
-            componentIdList = new LinkedList<String>();
-        }
-        componentIdList.add(componentId);
-    }
-
-    public Long getFromTimeInMillis() { return fromTimeInMillis; }
-
-    public Long getToTimeInMillis() { return toTimeInMillis; }
-
-    public List<String> getDeviceList() { return deviceList; }
-
-    public List<String> getComponentIdList() { return componentIdList; }
 }

@@ -146,7 +146,7 @@ public class AccountManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, renewActivationCode, "renew activation code");
     }
 
-    //To-DO
+    /* TODO: Fix update account */
     public boolean updateAnAccount(final String accountNameToUpdate) {
         //initiating put for update of account
         HttpPutTask updateAccount = new HttpPutTask(new HttpTaskHandler() {
@@ -177,6 +177,11 @@ public class AccountManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, updateAccount, "update account");
     }
 
+    /**
+     * Delete the current account
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}
+     */
     public boolean deleteAnAccount() {
         //initiating Delete of an account
         HttpDeleteTask deleteAccount = new HttpDeleteTask(new HttpTaskHandler() {
@@ -192,6 +197,17 @@ public class AccountManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, deleteAccount, "delete account");
     }
 
+    /* TODO: Add change user privileges */
+
+    /**
+     * Add another user to your account.
+     * @param accountId The account id of the other user
+     * @param inviteeUserId The user id of the other user
+     * @param isAdmin The role for this user in the current account
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}
+     * @throws JSONException
+     */
     public boolean addAnotherUserToYourAccount(String accountId, String inviteeUserId, Boolean isAdmin) throws JSONException {
         if (accountId == null || inviteeUserId == null) {
             Log.d(TAG, "userId or accountId of new user cannot be null");

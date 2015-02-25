@@ -26,20 +26,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class CreateRule {
+public class Rule {
     private String name;
     private String description;
     private String priority;
     private String ruleType;
     private String status;
     private String resetType;
-    private List<CreateRuleActions> ruleActionsList;
+    private List<RuleAction> ruleActionsList;
     // population
     private List<String> populationIds;
     private String populationAttributes;
     //conditions
     private String operatorName; // operator
-    private List<CreateRuleConditionValues> ruleConditionValuesList;
+    private List<RuleConditionValues> ruleConditionValuesList;
 
     public void setRuleName(String name) {
         this.name = name;
@@ -73,11 +73,11 @@ public class CreateRule {
         this.operatorName = operatorName;
     }
 
-    public void setRuleActions(CreateRuleActions createRuleActionsObj) {
+    public void setRuleActions(RuleAction ruleActionObj) {
         if (this.ruleActionsList == null) {
-            this.ruleActionsList = new LinkedList<CreateRuleActions>();
+            this.ruleActionsList = new LinkedList<RuleAction>();
         }
-        this.ruleActionsList.add(createRuleActionsObj);
+        this.ruleActionsList.add(ruleActionObj);
     }
 
     public void addRulePopulationId(String populationId) {
@@ -87,11 +87,11 @@ public class CreateRule {
         this.populationIds.add(populationId);
     }
 
-    public void addRuleConditionValues(CreateRuleConditionValues createRuleConditionValuesObj) {
+    public void addRuleConditionValues(RuleConditionValues ruleConditionValuesObj) {
         if (this.ruleConditionValuesList == null) {
-            this.ruleConditionValuesList = new LinkedList<CreateRuleConditionValues>();
+            this.ruleConditionValuesList = new LinkedList<RuleConditionValues>();
         }
-        this.ruleConditionValuesList.add(createRuleConditionValuesObj);
+        this.ruleConditionValuesList.add(ruleConditionValuesObj);
     }
 
     public String getName() { return name; }
@@ -110,9 +110,9 @@ public class CreateRule {
 
     public String getOperatorName() { return operatorName; }
 
-    public List<CreateRuleActions> getRuleActionsList() { return ruleActionsList; }
+    public List<RuleAction> getRuleActionsList() { return ruleActionsList; }
 
     public List<String> getPopulationIds() { return populationIds; }
 
-    public List<CreateRuleConditionValues> getRuleConditionValuesList() { return ruleConditionValuesList; }
+    public List<RuleConditionValues> getRuleConditionValuesList() { return ruleConditionValuesList; }
 }

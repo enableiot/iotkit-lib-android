@@ -23,9 +23,9 @@
 package com.intel.iotkit;
 
 import com.intel.iotkitlib.RequestStatusHandler;
-import com.intel.iotkitlib.models.CreateRule;
-import com.intel.iotkitlib.models.CreateRuleActions;
-import com.intel.iotkitlib.models.CreateRuleConditionValues;
+import com.intel.iotkitlib.models.Rule;
+import com.intel.iotkitlib.models.RuleAction;
+import com.intel.iotkitlib.models.RuleConditionValues;
 import com.intel.iotkitlib.RuleManagement;
 
 import org.json.JSONException;
@@ -50,35 +50,35 @@ public class RuleManagementTest extends ApplicationTest {
                 serverResponse = true;
             }
         });
-        CreateRule createRuleObj = new CreateRule();
-        CreateRuleActions createRuleActionObj = new CreateRuleActions();
-        CreateRuleConditionValues createRuleConditionValuesObj =
-                new CreateRuleConditionValues();
+        Rule ruleObj = new Rule();
+        RuleAction createRuleActionObj = new RuleAction();
+        RuleConditionValues ruleConditionValuesObj =
+                new RuleConditionValues();
 
-        createRuleObj.setRuleName("Test Rule2");
-        createRuleObj.setRuleDescription("This is a iotkit_wrapper rule");
-        createRuleObj.setRulePriority("Medium");
-        createRuleObj.setRuleType("Regular");
-        createRuleObj.setRuleStatus("Active");
-        createRuleObj.setRuleResetType("Automatic");
+        ruleObj.setRuleName("Test Rule2");
+        ruleObj.setRuleDescription("This is a iotkit_wrapper rule");
+        ruleObj.setRulePriority("Medium");
+        ruleObj.setRuleType("Regular");
+        ruleObj.setRuleStatus("Active");
+        ruleObj.setRuleResetType("Automatic");
 
         createRuleActionObj.setRuleActionType("mail");
         createRuleActionObj.addRuleActionTarget("intel.aricent.iot1@gmail.com");
         createRuleActionObj.addRuleActionTarget("intel.aricent.iot3@gmail.com");
 
-        createRuleObj.setRuleActions(createRuleActionObj);
-        createRuleObj.addRulePopulationId("685.1.1.1");
+        ruleObj.setRuleActions(createRuleActionObj);
+        ruleObj.addRulePopulationId("685.1.1.1");
 
-        createRuleConditionValuesObj.addConditionComponent("dataType", "Number");
-        createRuleConditionValuesObj.addConditionComponent("name", "Temp.01.1");
-        createRuleConditionValuesObj.setConditionType("basic");
-        createRuleConditionValuesObj.addConditionValues("25");
-        createRuleConditionValuesObj.setConditionOperator(">");
+        ruleConditionValuesObj.addConditionComponent("dataType", "Number");
+        ruleConditionValuesObj.addConditionComponent("name", "Temp.01.1");
+        ruleConditionValuesObj.setConditionType("basic");
+        ruleConditionValuesObj.addConditionValues("25");
+        ruleConditionValuesObj.setConditionOperator(">");
 
-        createRuleObj.setRuleOperatorName("OR");
-        createRuleObj.addRuleConditionValues(createRuleConditionValuesObj);
+        ruleObj.setRuleOperatorName("OR");
+        ruleObj.addRuleConditionValues(ruleConditionValuesObj);
 
-        assertEquals(true, ruleManagement.createARule(createRuleObj));
+        assertEquals(true, ruleManagement.createARule(ruleObj));
         waitForServerResponse(ruleManagement);
     }
 
@@ -90,35 +90,35 @@ public class RuleManagementTest extends ApplicationTest {
                 serverResponse = true;
             }
         });
-        CreateRule createRuleObj = new CreateRule();
-        CreateRuleActions createRuleActionObj = new CreateRuleActions();
-        CreateRuleConditionValues createRuleConditionValuesObj =
-                new CreateRuleConditionValues();
+        Rule ruleObj = new Rule();
+        RuleAction createRuleActionObj = new RuleAction();
+        RuleConditionValues ruleConditionValuesObj =
+                new RuleConditionValues();
 
-        createRuleObj.setRuleName("Test Rule2");
-        createRuleObj.setRuleDescription("This is a iotkit_wrapper rule");
-        createRuleObj.setRulePriority("Medium");
-        createRuleObj.setRuleType("Regular");
-        createRuleObj.setRuleStatus("Active");
-        createRuleObj.setRuleResetType("Automatic");
+        ruleObj.setRuleName("Test Rule2");
+        ruleObj.setRuleDescription("This is a iotkit_wrapper rule");
+        ruleObj.setRulePriority("Medium");
+        ruleObj.setRuleType("Regular");
+        ruleObj.setRuleStatus("Active");
+        ruleObj.setRuleResetType("Automatic");
 
         createRuleActionObj.setRuleActionType("mail");
         createRuleActionObj.addRuleActionTarget("intel.aricent.iot3@gmail.com");
         createRuleActionObj.addRuleActionTarget("intel.aricent.iot1@gmail.com");
 
-        createRuleObj.setRuleActions(createRuleActionObj);
-        createRuleObj.addRulePopulationId("685.1.1.1");
+        ruleObj.setRuleActions(createRuleActionObj);
+        ruleObj.addRulePopulationId("685.1.1.1");
 
-        createRuleConditionValuesObj.addConditionComponent("dataType", "Number");
-        createRuleConditionValuesObj.addConditionComponent("name", "Temp.01.1");
-        createRuleConditionValuesObj.setConditionType("basic");
-        createRuleConditionValuesObj.addConditionValues("25");
-        createRuleConditionValuesObj.setConditionOperator(">");
+        ruleConditionValuesObj.addConditionComponent("dataType", "Number");
+        ruleConditionValuesObj.addConditionComponent("name", "Temp.01.1");
+        ruleConditionValuesObj.setConditionType("basic");
+        ruleConditionValuesObj.addConditionValues("25");
+        ruleConditionValuesObj.setConditionOperator(">");
 
-        createRuleObj.setRuleOperatorName("OR");
-        createRuleObj.addRuleConditionValues(createRuleConditionValuesObj);
+        ruleObj.setRuleOperatorName("OR");
+        ruleObj.addRuleConditionValues(ruleConditionValuesObj);
 
-        assertEquals(true, ruleManagement.updateARule(createRuleObj, "90205"));
+        assertEquals(true, ruleManagement.updateARule(ruleObj, "90205"));
         waitForServerResponse(ruleManagement);
     }
 

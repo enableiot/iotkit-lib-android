@@ -20,11 +20,27 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.intel.iotkitlib.utils.AttributeFilters;
+package com.intel.iotkitlib.models;
 
+import java.util.LinkedList;
 import java.util.List;
 
+public class RuleAction {
+    String ruleActionType;
+    List<String> target;
 
-public class AttributeFilterList {
-    public List<AttributeFilter> filterData;
+    public void setRuleActionType(String ruleActionType) {
+        this.ruleActionType = ruleActionType;
+    }
+
+    public void addRuleActionTarget(String target) {
+        if (this.target == null) {
+            this.target = new LinkedList<String>();
+        }
+        this.target.add(target);
+    }
+
+    public String getRuleActionType() { return ruleActionType; }
+
+    public List<String> getRuleActionTarget() { return target; }
 }

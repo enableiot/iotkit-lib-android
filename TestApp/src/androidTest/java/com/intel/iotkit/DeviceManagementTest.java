@@ -22,7 +22,7 @@
  */
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.models.CreateDevice;
+import com.intel.iotkitlib.models.Device;
 import com.intel.iotkitlib.DeviceManagement;
 import com.intel.iotkitlib.RequestStatusHandler;
 
@@ -50,8 +50,8 @@ public class DeviceManagementTest extends ApplicationTest {
             }
         });
         //create a device
-        CreateDevice objDeviceDetails = new
-                CreateDevice("iotkit_wrapper-Device-retrieve-data2", "devTest", "devTest");
+        Device objDeviceDetails = new
+                Device("iotkit_wrapper-Device-retrieve-data2", "devTest", "devTest");
         objDeviceDetails.setLocation(12.0, 16.0, 18.0);
         objDeviceDetails.addTagName("Intel ODC test dev");
         objDeviceDetails.addAttributeInfo("processor", "Intel");
@@ -82,8 +82,8 @@ public class DeviceManagementTest extends ApplicationTest {
         objDeviceDetails.addAttributeInfo("processor", "ARM");
         objDeviceDetails.addAttributeInfo("Camera", "5Mp with flash");
         objDeviceDetails.addAttributeInfo("Wifi", "Yes");*/
-        CreateDevice objDeviceDetails = new
-                CreateDevice("iot dev", null, "devTest");
+        Device objDeviceDetails = new
+                Device("iot dev", null, "devTest");
         objDeviceDetails.setLocation(10.0, 15.0, 15.0);
         objDeviceDetails.addTagName("intel");
         objDeviceDetails.addAttributeInfo("processor", "AMD");

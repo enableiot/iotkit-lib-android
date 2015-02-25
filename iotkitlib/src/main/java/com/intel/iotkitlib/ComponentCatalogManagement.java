@@ -28,7 +28,7 @@ import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpPutTask;
 import com.intel.iotkitlib.http.HttpTaskHandler;
-import com.intel.iotkitlib.models.CreateOrUpdateComponentCatalog;
+import com.intel.iotkitlib.models.ComponentCatalog;
 
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
@@ -38,11 +38,11 @@ import org.json.JSONObject;
 import java.util.LinkedHashMap;
 
 
-public class ComponentTypesCatalog extends ParentModule {
+public class ComponentCatalogManagement extends ParentModule {
     private static final String TAG = "ComponentTypesCatalog";
 
     //constructor
-    public ComponentTypesCatalog(RequestStatusHandler requestStatusHandler) {
+    public ComponentCatalogManagement(RequestStatusHandler requestStatusHandler) {
         super(requestStatusHandler);
     }
 
@@ -93,22 +93,22 @@ public class ComponentTypesCatalog extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, componentTypeDetails, "component type details");
     }
 
-    private boolean validateActuatorCommand(CreateOrUpdateComponentCatalog createOrUpdateComponentCatalog) {
-        if (createOrUpdateComponentCatalog.getComponentType().contentEquals("actuator") &&
-                createOrUpdateComponentCatalog.getActuatorCommandParams() == null) {
+    private boolean validateActuatorCommand(ComponentCatalog componentCatalog) {
+        if (componentCatalog.getComponentType().contentEquals("actuator") &&
+                componentCatalog.getActuatorCommandParams() == null) {
             Log.i(TAG, "Command Parameters are mandatory for component catalog type \"actuator\"");
             return false;
         }
-        if (!createOrUpdateComponentCatalog.getComponentType().contentEquals("actuator") &&
-                createOrUpdateComponentCatalog.getCommandString() != null) {
+        if (!componentCatalog.getComponentType().contentEquals("actuator") &&
+                componentCatalog.getCommandString() != null) {
             Log.i(TAG, "Command Json(command string and params) not required  for catalog type \"" +
-                    createOrUpdateComponentCatalog.getComponentType() + "\"");
+                    componentCatalog.getComponentType() + "\"");
             return false;
         }
         return true;
     }
 
-    public boolean createCustomComponent(CreateOrUpdateComponentCatalog createComponentCatalog) throws JSONException {
+    public boolean createCustomComponent(ComponentCatalog createComponentCatalog) throws JSONException {
         if (!validateActuatorCommand(createComponentCatalog)) {
             return false;
         }
@@ -131,7 +131,7 @@ public class ComponentTypesCatalog extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, createNewComponent, "create new custom component");
     }
 
-    public boolean updateAComponent(CreateOrUpdateComponentCatalog updateComponentCatalog, String componentId) throws JSONException {
+    public boolean updateAComponent(ComponentCatalog updateComponentCatalog, String componentId) throws JSONException {
         if (!validateActuatorCommand(updateComponentCatalog)) {
             return false;
         }
@@ -157,7 +157,7 @@ public class ComponentTypesCatalog extends ParentModule {
     }
 
     //method to handle http body formation for creating custom component
-    private String createBodyForComponentCreation(CreateOrUpdateComponentCatalog createComponentCatalog) throws JSONException {
+    private String createBodyForComponentCreation(ComponentCatalog createComponentCatalog) throws JSONException {
         if (createComponentCatalog.getComponentName() == null || createComponentCatalog.getComponentVersion() == null ||
                 createComponentCatalog.getComponentType() == null || createComponentCatalog.getComponentDataType() == null ||
                 createComponentCatalog.getComponentFormat() == null || createComponentCatalog.getComponentUnit() == null ||
@@ -180,27 +180,27 @@ public class ComponentTypesCatalog extends ParentModule {
         return createComponentJson.toString();
     }
 
-    private JSONObject addMinMaxValuesToHttpBody(CreateOrUpdateComponentCatalog createOrUpdateComponentCatalog,
+    private JSONObject addMinMaxValuesToHttpBody(ComponentCatalog componentCatalog,
                                                  JSONObject componentJson)
             throws JSONException {
-        if (createOrUpdateComponentCatalog.isMinSet()) {
-            componentJson.put("min", createOrUpdateComponentCatalog.getMinValue());
+        if (componentCatalog.isMinSet()) {
+            componentJson.put("min", componentCatalog.getMinValue());
         }
-        if (createOrUpdateComponentCatalog.isMaxSet()) {
-            componentJson.put("max", createOrUpdateComponentCatalog.getMaxValue());
+        if (componentCatalog.isMaxSet()) {
+            componentJson.put("max", componentCatalog.getMaxValue());
         }
         return componentJson;
     }
 
-    private JSONObject addActuatorCommandParametersToHttpBody(CreateOrUpdateComponentCatalog createOrUpdateComponentCatalog,
+    private JSONObject addActuatorCommandParametersToHttpBody(ComponentCatalog componentCatalog,
                                                               JSONObject componentJson)
             throws JSONException {
         //handling actuator-type params
-        if (createOrUpdateComponentCatalog.getCommandString() != null) {
+        if (componentCatalog.getCommandString() != null) {
             JSONObject commandJson = new JSONObject();
-            commandJson.put("commandString", createOrUpdateComponentCatalog.getCommandString());
+            commandJson.put("commandString", componentCatalog.getCommandString());
             JSONArray parametersArray = new JSONArray();
-            for (NameValuePair nameValuePair : createOrUpdateComponentCatalog.getActuatorCommandParams()) {
+            for (NameValuePair nameValuePair : componentCatalog.getActuatorCommandParams()) {
                 JSONObject parametersJson = new JSONObject();
                 parametersJson.put("name", nameValuePair.getName());
                 parametersJson.put("values", nameValuePair.getValue());
@@ -213,7 +213,7 @@ public class ComponentTypesCatalog extends ParentModule {
     }
 
     //method to handle http body formation for updating custom component
-    private String createBodyForComponentUpdation(CreateOrUpdateComponentCatalog updateComponentCatalog) throws JSONException {
+    private String createBodyForComponentUpdation(ComponentCatalog updateComponentCatalog) throws JSONException {
         JSONObject updateComponentJson = new JSONObject();
         if (updateComponentCatalog.getComponentType() != null) {
             updateComponentJson.put("type", updateComponentCatalog.getComponentType());

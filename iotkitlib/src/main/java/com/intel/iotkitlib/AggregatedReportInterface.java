@@ -26,8 +26,7 @@ import android.util.Log;
 
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpTaskHandler;
-import com.intel.iotkitlib.utils.AttributeFilters.AttributeFilter;
-import com.intel.iotkitlib.utils.AttributeFilters.AttributeFilterList;
+import com.intel.iotkitlib.models.AttributeFilter;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -55,7 +54,7 @@ public class AggregatedReportInterface extends ParentModule {
     List<String> deviceIds;
     List<String> componentIds;
     List<NameValuePair> sort;
-    AttributeFilterList filters;
+    List<AttributeFilter> filters;
 
     /**
      * Interface for query aggregated metrics data in a single account.
@@ -195,10 +194,9 @@ public class AggregatedReportInterface extends ParentModule {
      */
     public void addFilter(AttributeFilter attributeFilter) {
         if (this.filters == null) {
-            this.filters = new AttributeFilterList();
-            this.filters.filterData = new LinkedList<AttributeFilter>();
+            this.filters = new LinkedList<AttributeFilter>();
         }
-        this.filters.filterData.add(attributeFilter);
+        this.filters.add(attributeFilter);
     }
 
     /**
@@ -286,7 +284,7 @@ public class AggregatedReportInterface extends ParentModule {
         }
         if (this.filters != null) {
             JSONObject filterJson = new JSONObject();
-            for (AttributeFilter attributeFilter : this.filters.filterData) {
+            for (AttributeFilter attributeFilter : this.filters) {
                 JSONArray filterValuesArray = new JSONArray();
                 for (String filterValue : attributeFilter.filterValues) {
                     filterValuesArray.put(filterValue);

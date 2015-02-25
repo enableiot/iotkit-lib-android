@@ -29,9 +29,9 @@ import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpPutTask;
 import com.intel.iotkitlib.http.HttpTaskHandler;
-import com.intel.iotkitlib.models.CreateRule;
-import com.intel.iotkitlib.models.CreateRuleActions;
-import com.intel.iotkitlib.models.CreateRuleConditionValues;
+import com.intel.iotkitlib.models.Rule;
+import com.intel.iotkitlib.models.RuleAction;
+import com.intel.iotkitlib.models.RuleConditionValues;
 
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
@@ -155,7 +155,7 @@ public class RuleManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, createDraftRule, "create draft rule");
     }
 
-    public boolean updateARule(CreateRule updateRuleObj, String ruleId) throws JSONException {
+    public boolean updateARule(Rule updateRuleObj, String ruleId) throws JSONException {
         if (updateRuleObj == null) {
             Log.d(TAG, "rule Object cannot be null");
             return false;
@@ -181,13 +181,13 @@ public class RuleManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, updateRule, "update a rule");
     }
 
-    public boolean createARule(CreateRule createRuleObj) throws JSONException {
-        if (createRuleObj == null) {
+    public boolean createARule(Rule ruleObj) throws JSONException {
+        if (ruleObj == null) {
             Log.d(TAG, "rule Object cannot be null");
             return false;
         }
         String body;
-        if ((body = createBodyForRuleCreation(createRuleObj)) == null) {
+        if ((body = createBodyForRuleCreation(ruleObj)) == null) {
             return false;
         }
         //initiating post for rule creation
@@ -205,21 +205,21 @@ public class RuleManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, createRule, "create a rule");
     }
 
-    private String createBodyForRuleCreation(CreateRule createRuleObj) throws JSONException {
+    private String createBodyForRuleCreation(Rule ruleObj) throws JSONException {
         JSONObject createRuleJson = new JSONObject();
-        createRuleJson.put("name", createRuleObj.getName());
-        createRuleJson.put("description", createRuleObj.getDescription());
-        createRuleJson.put("priority", createRuleObj.getPriority());
-        createRuleJson.put("type", createRuleObj.getRuleType());
-        createRuleJson.put("status", createRuleObj.getStatus());
-        createRuleJson.put("resetType", createRuleObj.getResetType());
+        createRuleJson.put("name", ruleObj.getName());
+        createRuleJson.put("description", ruleObj.getDescription());
+        createRuleJson.put("priority", ruleObj.getPriority());
+        createRuleJson.put("type", ruleObj.getRuleType());
+        createRuleJson.put("status", ruleObj.getStatus());
+        createRuleJson.put("resetType", ruleObj.getResetType());
         JSONArray actionsArray = new JSONArray();
         //adding actions
-        for (CreateRuleActions createRuleActionsObj : createRuleObj.getRuleActionsList()) {
+        for (RuleAction ruleActionObj : ruleObj.getRuleActionsList()) {
             JSONObject actionsJson = new JSONObject();
             JSONArray targetArray = new JSONArray();
-            actionsJson.put("type", createRuleActionsObj.getRuleActionType());
-            for (String targetName : createRuleActionsObj.getRuleActionTarget()) {
+            actionsJson.put("type", ruleActionObj.getRuleActionType());
+            for (String targetName : ruleActionObj.getRuleActionTarget()) {
                 targetArray.put(targetName);
             }
             actionsJson.put("target", targetArray);
@@ -228,28 +228,28 @@ public class RuleManagement extends ParentModule {
         createRuleJson.put("actions", actionsArray);
         //population
         JSONObject populationJson = new JSONObject();
-        populationJson.put("attributes", createRuleObj.getPopulationAttributes());
+        populationJson.put("attributes", ruleObj.getPopulationAttributes());
         JSONArray populationIdArray = new JSONArray();
-        for (String id : createRuleObj.getPopulationIds()) {
+        for (String id : ruleObj.getPopulationIds()) {
             populationIdArray.put(id);
         }
         populationJson.put("ids", populationIdArray);
         createRuleJson.put("population", populationJson);
         //conditions
         JSONObject conditionsJson = new JSONObject();
-        conditionsJson.put("operator", createRuleObj.getOperatorName());
+        conditionsJson.put("operator", ruleObj.getOperatorName());
         JSONArray conditionsValueArray = new JSONArray();
-        for (CreateRuleConditionValues createRuleConditionValuesObj : createRuleObj.getRuleConditionValuesList()) {
+        for (RuleConditionValues ruleConditionValuesObj : ruleObj.getRuleConditionValuesList()) {
             JSONObject valuesJson = new JSONObject();
-            valuesJson.put("type", createRuleConditionValuesObj.getRuleConditionType());
-            valuesJson.put("operator", createRuleConditionValuesObj.getRuleConditionValuesOperatorName());
+            valuesJson.put("type", ruleConditionValuesObj.getRuleConditionType());
+            valuesJson.put("operator", ruleConditionValuesObj.getRuleConditionValuesOperatorName());
             JSONObject componentJson = new JSONObject();
-            for (NameValuePair nameValuePair : createRuleConditionValuesObj.getComponents()) {
+            for (NameValuePair nameValuePair : ruleConditionValuesObj.getComponents()) {
                 componentJson.put(nameValuePair.getName(), nameValuePair.getValue());
             }
             valuesJson.put("component", componentJson);
             JSONArray valuesArray = new JSONArray();
-            for (String value : createRuleConditionValuesObj.getValues()) {
+            for (String value : ruleConditionValuesObj.getValues()) {
                 valuesArray.put(value);
             }
             valuesJson.put("values", valuesArray);

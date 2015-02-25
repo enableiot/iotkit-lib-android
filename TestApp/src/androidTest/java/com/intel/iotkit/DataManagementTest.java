@@ -23,7 +23,7 @@
 package com.intel.iotkit;
 
 import com.intel.iotkitlib.DataManagement;
-import com.intel.iotkitlib.models.RetrieveData;
+import com.intel.iotkitlib.models.TimeSeriesData;
 import com.intel.iotkitlib.RequestStatusHandler;
 
 import org.json.JSONException;
@@ -62,18 +62,18 @@ public class DataManagementTest extends ApplicationTest {
             }
         });
         //retrieve data
-        RetrieveData retrieveData = new
-                RetrieveData(0L, System.currentTimeMillis());
+        TimeSeriesData timeSeriesData = new
+                TimeSeriesData(0L, System.currentTimeMillis());
         /*retrieveData.addDeviceId("22-a5-80-21-5b-29");
         retrieveData.addDeviceId("xxxx");
         retrieveData.addComponentId("9d44c354-7252-4494-8ade-39508bfdbdaf");
         retrieveData.addComponentId("c4d1f4c1-6fb6-4793-b85d-431c6cba647b");*/
-        retrieveData.addDeviceId("dev1");
-        retrieveData.addDeviceId("dev");
-        retrieveData.addComponentId("8cb8bf40-d46f-4a02-8203-d3d4acad9760");
+        timeSeriesData.addDeviceId("dev1");
+        timeSeriesData.addDeviceId("dev");
+        timeSeriesData.addComponentId("8cb8bf40-d46f-4a02-8203-d3d4acad9760");
         //retrieveData.addComponentId("c4d1f4c1-6fb6-4793-b85d-431c6cba647b");
 
-        assertEquals(true, dataManagement.retrieveData(retrieveData));
+        assertEquals(true, dataManagement.retrieveData(timeSeriesData));
         waitForServerResponse(dataManagement);
     }
 }

@@ -26,7 +26,7 @@ import android.util.Log;
 
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpTaskHandler;
-import com.intel.iotkitlib.models.RetrieveData;
+import com.intel.iotkitlib.models.TimeSeriesData;
 import com.intel.iotkitlib.utils.Utilities;
 
 import org.apache.http.NameValuePair;
@@ -73,11 +73,11 @@ public class DataManagement extends ParentModule {
 
     }
 
-    public boolean retrieveData(RetrieveData objRetrieveData) throws JSONException {
-        if (!validateRetrieveDataValues(objRetrieveData)) {
+    public boolean retrieveData(TimeSeriesData objTimeSeriesData) throws JSONException {
+        if (!validateRetrieveDataValues(objTimeSeriesData)) {
             return false;
         }
-        String body = createHttpBodyToRetrieveData(objRetrieveData);
+        String body = createHttpBodyToRetrieveData(objTimeSeriesData);
         //initiating post for data retrieval
         HttpPostTask retrieveDataTask = new HttpPostTask(new HttpTaskHandler() {
             @Override
@@ -95,19 +95,19 @@ public class DataManagement extends ParentModule {
 
     }
 
-    private String createHttpBodyToRetrieveData(RetrieveData objRetrieveData) throws JSONException {
+    private String createHttpBodyToRetrieveData(TimeSeriesData objTimeSeriesData) throws JSONException {
         JSONObject retrieveDataJson = new JSONObject();
-        retrieveDataJson.put("from", objRetrieveData.getFromTimeInMillis());
-        retrieveDataJson.put("to", objRetrieveData.getToTimeInMillis());
+        retrieveDataJson.put("from", objTimeSeriesData.getFromTimeInMillis());
+        retrieveDataJson.put("to", objTimeSeriesData.getToTimeInMillis());
         JSONObject targetFilterJson = new JSONObject();
         JSONArray deviceListJsonArray = new JSONArray();
-        for (String deviceId : objRetrieveData.getDeviceList()) {
+        for (String deviceId : objTimeSeriesData.getDeviceList()) {
             deviceListJsonArray.put(deviceId);
         }
         targetFilterJson.put("deviceList", deviceListJsonArray);
         retrieveDataJson.put("targetFilter", targetFilterJson);
         JSONArray metricsJsonArray = new JSONArray();
-        for (String componentId : objRetrieveData.getComponentIdList()) {
+        for (String componentId : objTimeSeriesData.getComponentIdList()) {
             JSONObject componentJson = new JSONObject();
             componentJson.put("id", componentId);
             componentJson.put("op", "none");
@@ -117,8 +117,8 @@ public class DataManagement extends ParentModule {
         return retrieveDataJson.toString();
     }
 
-    private boolean validateRetrieveDataValues(RetrieveData objRetrieveData) {
-        if (objRetrieveData.getDeviceList() == null || objRetrieveData.getComponentIdList() == null) {
+    private boolean validateRetrieveDataValues(TimeSeriesData objTimeSeriesData) {
+        if (objTimeSeriesData.getDeviceList() == null || objTimeSeriesData.getComponentIdList() == null) {
             Log.d(TAG, "device List or componentId List cannot be null");
             return false;
         }

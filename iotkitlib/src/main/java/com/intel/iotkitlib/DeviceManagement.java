@@ -29,7 +29,7 @@ import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpPutTask;
 import com.intel.iotkitlib.http.HttpTaskHandler;
-import com.intel.iotkitlib.models.CreateDevice;
+import com.intel.iotkitlib.models.Device;
 import com.intel.iotkitlib.models.DeviceToken;
 import com.intel.iotkitlib.utils.Utilities;
 
@@ -45,7 +45,6 @@ import java.util.UUID;
 
 public class DeviceManagement extends ParentModule {
     private static final String TAG = "DeviceManagement";
-    //public CreateDevice createDevice;
 
     public DeviceManagement(RequestStatusHandler requestStatusHandler) {
         super(requestStatusHandler);
@@ -66,9 +65,9 @@ public class DeviceManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, listDevices, "list all devices");
     }
 
-    public boolean createNewDevice(CreateDevice objCreateDevice) throws JSONException {
+    public boolean createNewDevice(Device objDevice) throws JSONException {
         String body;
-        if ((body = createBodyForDeviceCreation(objCreateDevice)) == null) {
+        if ((body = createBodyForDeviceCreation(objDevice)) == null) {
             return false;
         }
         //initiating post for device creation
@@ -123,7 +122,7 @@ public class DeviceManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, getDeviceDetails, "my device info");
     }
 
-    public boolean updateADevice(CreateDevice objUpdateDevice) throws JSONException {
+    public boolean updateADevice(Device objUpdateDevice) throws JSONException {
         String body;
         if ((body = createBodyForDeviceUpdation(objUpdateDevice)) == null) {
             return false;
@@ -191,7 +190,7 @@ public class DeviceManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, addComponent, "add component to device");
     }
 
-    //To-DO,need to be tested
+    /* TODO: need to be tested */
     public boolean deleteAComponent(final String componentName) {
         //initiating delete of component
         HttpDeleteTask deleteComponent = new HttpDeleteTask(new HttpTaskHandler() {
@@ -275,7 +274,7 @@ public class DeviceManagement extends ParentModule {
     }
 
     //method to handle http body formation for updating or creating device
-    private String createDeviceBody(JSONObject deviceBodyJson, CreateDevice deviceObjectForCreationOrUpdation) throws JSONException {
+    private String createDeviceBody(JSONObject deviceBodyJson, Device deviceObjectForCreationOrUpdation) throws JSONException {
         if (deviceObjectForCreationOrUpdation.getGatewayId() == null) {
             Log.d(TAG, "gateway Id cannot be empty");
             return null;
@@ -314,20 +313,20 @@ public class DeviceManagement extends ParentModule {
     }
 
     //method to handle http body formation for updating device
-    private String createBodyForDeviceUpdation(CreateDevice objUpdateDevice) throws JSONException {
+    private String createBodyForDeviceUpdation(Device objUpdateDevice) throws JSONException {
         JSONObject updateDeviceJson = new JSONObject();
         return createDeviceBody(updateDeviceJson, objUpdateDevice);
     }
 
     //method to handle http body formation for creating device
-    private String createBodyForDeviceCreation(CreateDevice objCreateDevice) throws JSONException {
+    private String createBodyForDeviceCreation(Device objDevice) throws JSONException {
         JSONObject newDeviceJson = new JSONObject();
-        if (objCreateDevice.getDeviceId() == null) {
+        if (objDevice.getDeviceId() == null) {
             Log.d(TAG, "Device Id cannot be empty");
             return null;
         }
-        newDeviceJson.put("deviceId", objCreateDevice.getDeviceId());
-        return createDeviceBody(newDeviceJson, objCreateDevice);
+        newDeviceJson.put("deviceId", objDevice.getDeviceId());
+        return createDeviceBody(newDeviceJson, objDevice);
     }
 
     //method to handle http body formation for adding component to device

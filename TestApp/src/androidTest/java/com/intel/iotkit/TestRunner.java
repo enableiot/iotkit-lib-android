@@ -63,11 +63,11 @@ public class TestRunner extends InstrumentationTestRunner {
         suite.addTest(TestSuite.createTest(DeviceManagementTest.class, "testGetAllAttributes"));
         suite.addTest(TestSuite.createTest(DeviceManagementTest.class, "testGetAllTags"));
         //Component Types Catalog
-        suite.addTest(TestSuite.createTest(ComponentTypesCatalogTest.class, "testListAllComponentTypesCatalog"));
-        suite.addTest(TestSuite.createTest(ComponentTypesCatalogTest.class, "testListAllDetailsOfComponentTypesCatalog"));
-        suite.addTest(TestSuite.createTest(ComponentTypesCatalogTest.class, "testListComponentTypeDetails"));
-        suite.addTest(TestSuite.createTest(ComponentTypesCatalogTest.class, "testCreateCustomComponent"));
-        suite.addTest(TestSuite.createTest(ComponentTypesCatalogTest.class, "testUpdateAComponent"));
+        suite.addTest(TestSuite.createTest(ComponentCatalogManagementTest.class, "testListAllComponentTypesCatalog"));
+        suite.addTest(TestSuite.createTest(ComponentCatalogManagementTest.class, "testListAllDetailsOfComponentTypesCatalog"));
+        suite.addTest(TestSuite.createTest(ComponentCatalogManagementTest.class, "testListComponentTypeDetails"));
+        suite.addTest(TestSuite.createTest(ComponentCatalogManagementTest.class, "testCreateCustomComponent"));
+        suite.addTest(TestSuite.createTest(ComponentCatalogManagementTest.class, "testUpdateAComponent"));
         //Data management
         suite.addTest(TestSuite.createTest(DataManagementTest.class, "testSubmitData"));
         suite.addTest(TestSuite.createTest(DataManagementTest.class, "testRetrieveData"));

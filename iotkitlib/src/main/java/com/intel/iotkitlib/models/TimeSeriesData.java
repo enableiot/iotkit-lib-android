@@ -22,13 +22,42 @@
  */
 package com.intel.iotkitlib.models;
 
+import java.util.LinkedList;
+import java.util.List;
 
-class ConditionCmpsValuePoints {
-    Long timeStamp;
-    String value;
 
-    ConditionCmpsValuePoints(Long timeStamp, String value) {
-        this.timeStamp = timeStamp;
-        this.value = value;
+public class TimeSeriesData {
+    Long fromTimeInMillis;
+    Long toTimeInMillis;
+    List<String> deviceList;
+    List<String> componentIdList;
+
+    public TimeSeriesData(Long fromTimeInMillis, Long toTimeInMillis) {
+        this.fromTimeInMillis = fromTimeInMillis;
+        this.toTimeInMillis = toTimeInMillis;
+        this.deviceList = null;
+        this.componentIdList = null;
     }
+
+    public void addDeviceId(String deviceId) {
+        if (deviceList == null) {
+            deviceList = new LinkedList<String>();
+        }
+        deviceList.add(deviceId);
+    }
+
+    public void addComponentId(String componentId) {
+        if (componentIdList == null) {
+            componentIdList = new LinkedList<String>();
+        }
+        componentIdList.add(componentId);
+    }
+
+    public Long getFromTimeInMillis() { return fromTimeInMillis; }
+
+    public Long getToTimeInMillis() { return toTimeInMillis; }
+
+    public List<String> getDeviceList() { return deviceList; }
+
+    public List<String> getComponentIdList() { return componentIdList; }
 }

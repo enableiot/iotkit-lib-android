@@ -29,7 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 //inner class to hold device details
-public class CreateOrUpdateComponentCatalog {
+public class ComponentCatalog {
     private String componentName;
     private String componentVersion;
     private String componentType;
@@ -45,9 +45,9 @@ public class CreateOrUpdateComponentCatalog {
     private List<NameValuePair> actuatorCommandParams;
 
     //constructor of inner class
-    public CreateOrUpdateComponentCatalog(String componentName, String componentVersion, String componentType,
-                                          String componentDataType, String componentFormat, String componentUnit,
-                                          String componentDisplay) {
+    public ComponentCatalog(String componentName, String componentVersion, String componentType,
+                            String componentDataType, String componentFormat, String componentUnit,
+                            String componentDisplay) {
         this.componentName = componentName;
         this.componentVersion = componentVersion;
         this.componentType = componentType;

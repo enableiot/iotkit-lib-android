@@ -25,7 +25,7 @@ package com.intel.iotkit;
 
 import com.intel.iotkitlib.AdvancedDataInquiry;
 import com.intel.iotkitlib.RequestStatusHandler;
-import com.intel.iotkitlib.utils.AttributeFilters.AttributeFilter;
+import com.intel.iotkitlib.models.AttributeFilter;
 
 import org.json.JSONException;
 
