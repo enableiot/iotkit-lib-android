@@ -58,8 +58,11 @@ public class AggregatedReportInterface extends ParentModule {
 
     /**
      * Interface for query aggregated metrics data in a single account.
+     *
+     * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Aggregated-Report-Interface}
+     *
      * @param requestStatusHandler The handler for asynchronously request to return data and status
-     *                             from the cloud
+     *                             from the cloud.
      */
     public AggregatedReportInterface(RequestStatusHandler requestStatusHandler) {
         super(requestStatusHandler);
@@ -72,23 +75,23 @@ public class AggregatedReportInterface extends ParentModule {
     }
 
     /**
-     * Set the start time for query data in be included in the report
-     * @param startTimestamp time in milliseconds since epoch time
+     * Set the start time for query data in be included in the report.
+     * @param startTimestamp time in milliseconds since epoch time.
      */
     public void setStartTimestamp(Long startTimestamp) {
         this.startTimestamp = startTimestamp;
     }
 
     /**
-     * Set the end time for query data in be included in the report
-     * @param endTimestamp time in milliseconds since epoch time
+     * Set the end time for query data in be included in the report.
+     * @param endTimestamp time in milliseconds since epoch time.
      */
     public void setEndTimestamp(Long endTimestamp) {
         this.endTimestamp = endTimestamp;
     }
 
     /**
-     * Add the aggregation method to the query request
+     * Add the aggregation method to the query request.
      * @param aggregation The aggregation method from the list of acceptable values of "min", "max",
      *                    "average", "std", "count" and "sum". The default is "average".
      */
@@ -111,23 +114,23 @@ public class AggregatedReportInterface extends ParentModule {
     }
 
     /**
-     * The first row of the data to return in the report. If this is set the limit must be set also
-     * @param offset The offset into the row of data to retrieve the report
+     * The first row of the data to return in the report. If this is set the limit must be set also.
+     * @param offset The offset into the row of data to retrieve the report.
      */
     public void setOffset(Integer offset) {
         this.offset = offset;
     }
 
     /**
-     * The maximum number of rows to include in the report
-     * @param limit the limit for the number of records return
+     * The maximum number of rows to include in the report.
+     * @param limit the limit for the number of records return.
      */
     public void setLimit(Integer limit) {
         this.limit = limit;
     }
 
     /**
-     * Setting to true will return the number of rows that would have returned from this report
+     * Setting to true will return the number of rows that would have returned from this report.
      * @param countOnly true will return number of rows
      */
     public void setCountOnly(Boolean countOnly) {
@@ -135,17 +138,17 @@ public class AggregatedReportInterface extends ParentModule {
     }
 
     /**
-     * Set the output type of the report to be returned
+     * Set the output type of the report to be returned.
      * @param outputType The desired output type of the data. The available options are "csv" or "json".
-     *                   The default is "json"
+     *                   The default is "json".
      */
     public void setOutputType(String outputType) {
         this.outputType = outputType;
     }
 
     /**
-     * Add a device id that is requested for the data in the report
-     * @param deviceId The device identifier for device data to be included in the report
+     * Add a device id that is requested for the data in the report.
+     * @param deviceId The device identifier for device data to be included in the report.
      */
     public void addDeviceId(String deviceId) {
         if (this.deviceIds == null) {
@@ -155,8 +158,8 @@ public class AggregatedReportInterface extends ParentModule {
     }
 
     /**
-     * Add a gateway id that is requested for the data in the report
-     * @param gatewayId The gateway identifier for gateway data to be included in the report
+     * Add a gateway id that is requested for the data in the report.
+     * @param gatewayId The gateway identifier for gateway data to be included in the report.
      */
     public void addGatewayId(String gatewayId) {
         if (this.gatewayIds == null) {
@@ -166,8 +169,8 @@ public class AggregatedReportInterface extends ParentModule {
     }
 
     /**
-     * Add a component id that is requested for the data in the report
-     * @param componentId The component identifier for component data to be included in the report
+     * Add a component id that is requested for the data in the report.
+     * @param componentId The component identifier for component data to be included in the report.
      */
     public void addComponentId(String componentId) {
         if (this.componentIds == null) {
@@ -177,9 +180,9 @@ public class AggregatedReportInterface extends ParentModule {
     }
 
     /**
-     * Add the sort criteria to the query
-     * @param name The sort field name
-     * @param value The source value. It must be "Asc" or "Desc"
+     * Add the sort criteria to the query.
+     * @param name The sort field name.
+     * @param value The source value. It must be "Asc" or "Desc".
      */
     public void addSortInfo(String name, String value) {
         if (this.sort == null) {
@@ -189,8 +192,8 @@ public class AggregatedReportInterface extends ParentModule {
     }
 
     /**
-     * Add attribute filter
-     * @param attributeFilter
+     * Add attribute filter.
+     * @param attributeFilter the filter to be added.
      */
     public void addFilter(AttributeFilter attributeFilter) {
         if (this.filters == null) {
@@ -200,9 +203,9 @@ public class AggregatedReportInterface extends ParentModule {
     }
 
     /**
-     * Starts a request for the report
+     * Starts a request for the report.
      * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}.
      * @throws JSONException
      */
     public boolean request() throws JSONException {
@@ -270,8 +273,10 @@ public class AggregatedReportInterface extends ParentModule {
             }
             reportInterfaceJson.put("componentIds", componentIdArray);
         }
-        reportInterfaceJson.put("startTimestamp", this.startTimestamp);
-        reportInterfaceJson.put("endTimestamp", this.endTimestamp);
+        //reportInterfaceJson.put("startTimestamp", this.startTimestamp);
+        //reportInterfaceJson.put("endTimestamp", this.endTimestamp);
+        reportInterfaceJson.put("from", this.startTimestamp);
+        reportInterfaceJson.put("to", this.endTimestamp);
         //sort
         if (this.sort != null) {
             JSONArray sortArray = new JSONArray();

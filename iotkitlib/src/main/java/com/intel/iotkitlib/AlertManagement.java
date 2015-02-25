@@ -36,14 +36,29 @@ import org.json.JSONObject;
 
 import java.util.LinkedHashMap;
 
-
+/**
+ * Alert management functions
+ */
 public class AlertManagement extends ParentModule {
     private final static String TAG = "AlertManagement";
 
+    /**
+     * The interface for handling alerts.
+     *
+     * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Alert-Management}
+     *
+     * @param requestStatusHandler The handler for asynchronously request to return data and status
+     *                             from the cloud.
+     */
     public AlertManagement(RequestStatusHandler requestStatusHandler) {
         super(requestStatusHandler);
     }
 
+    /**
+     * Get a list of all alerts for the specified account.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from.
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean getListOfAlerts() {
         //initiating get for list of alerts
         HttpGetTask listOfAlerts = new HttpGetTask(new HttpTaskHandler() {
@@ -59,6 +74,12 @@ public class AlertManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, listOfAlerts, "list of alerts");
     }
 
+    /**
+     * Get specific alert details connected with the account.
+     * @param alertId the identifier for the alert to retrieve details.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from.
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean getInfoOnAlert(String alertId) {
         if (alertId == null) {
             Log.d(TAG, "alert id cannot be null");
@@ -80,6 +101,12 @@ public class AlertManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, infoOnAlert, "info on one rule");
     }
 
+    /**
+     * Change the alert status to "Closed". Alert won't be active any more.
+     * @param alertId the identifier for the alert to reset.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean resetAlert(String alertId) {
         if (alertId == null) {
             Log.d(TAG, "alert id cannot be null");
@@ -101,6 +128,13 @@ public class AlertManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, alertReset, "alert reset");
     }
 
+    /**
+     * Change the status of the alert.
+     * @param alertId the identifier for the alert to change the status on.
+     * @param status the status to change to. The value should be one of the following values:
+     *               ['New', 'Open', 'Closed'].
+     * @return
+     */
     public boolean updateAlertStatus(String alertId, String status) {
         if (alertId == null || status == null) {
             Log.d(TAG, "alert id or status cannot be null");
@@ -123,6 +157,16 @@ public class AlertManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, updateAlertStatus, "alert status update");
     }
 
+    /**
+     * Add a comment to the alert.
+     * @param alertId the identifier for the alert that the comment will be attached to.
+     * @param user the user that made the comment.
+     * @param timeStamp the timestamp when the comment was made.
+     * @param comment the comment text.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * @throws JSONException
+     */
     public boolean addCommentsToTheAlert(String alertId, String user, Long timeStamp, String comment) throws JSONException {
         if (alertId == null || user == null || comment == null) {
             Log.d(TAG, "alert id or user or comment cannot be null");

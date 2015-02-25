@@ -37,15 +37,35 @@ import org.json.JSONObject;
 
 import java.util.LinkedHashMap;
 
-
+/**
+ * Component Types Catalog functions
+ */
 public class ComponentCatalogManagement extends ParentModule {
     private static final String TAG = "ComponentTypesCatalog";
 
-    //constructor
+    /**
+     * The component type catalog maintains a list of capabilities that component connected to the
+     * enableiot cloud expose. There are two main types of components which are sensor and actutator.
+     * The catalog comes with default (built-in @link{https://github.com/enableiot/iotkit-api/wiki/Component%20Types%20List})
+     * component types which are available to all accounts.
+     *
+     * A Component-Type ID, which is account-level unique is a concatenation of its dimension and
+     * its version, seperated by a single period: e.g. "temperature.v1.0" or "humidity.v2.0".
+     *
+     * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Component-Types-Catalog}
+     *
+     * @param requestStatusHandler The handler for asynchronously request to return data and status
+     *                             from the cloud.
+     */
     public ComponentCatalogManagement(RequestStatusHandler requestStatusHandler) {
         super(requestStatusHandler);
     }
 
+    /**
+     * Get a list of all component types with minimal information.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean listAllComponentTypesCatalog() {
         //initiating get for list all component types
         HttpGetTask listAllComponents = new HttpGetTask(new HttpTaskHandler() {
@@ -61,6 +81,11 @@ public class ComponentCatalogManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, listAllComponents, "list all component types");
     }
 
+    /**
+     * Get a list of all component types with full detailed information.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean listAllDetailsOfComponentTypesCatalog() {
         //initiating get for list all component types detailed
         HttpGetTask listAllComponentsDetails = new HttpGetTask(new HttpTaskHandler() {
@@ -76,6 +101,12 @@ public class ComponentCatalogManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, listAllComponentsDetails, "list all component types detailed");
     }
 
+    /**
+     * Get a complete description of a component type for a specific component.
+     * @param componentId the identifier for the component to get information for.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean listComponentTypeDetails(String componentId) {
         //initiating get for component type details
         HttpGetTask componentTypeDetails = new HttpGetTask(new HttpTaskHandler() {
@@ -93,27 +124,21 @@ public class ComponentCatalogManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, componentTypeDetails, "component type details");
     }
 
-    private boolean validateActuatorCommand(ComponentCatalog componentCatalog) {
-        if (componentCatalog.getComponentType().contentEquals("actuator") &&
-                componentCatalog.getActuatorCommandParams() == null) {
-            Log.i(TAG, "Command Parameters are mandatory for component catalog type \"actuator\"");
-            return false;
-        }
-        if (!componentCatalog.getComponentType().contentEquals("actuator") &&
-                componentCatalog.getCommandString() != null) {
-            Log.i(TAG, "Command Json(command string and params) not required  for catalog type \"" +
-                    componentCatalog.getComponentType() + "\"");
-            return false;
-        }
-        return true;
-    }
-
-    public boolean createCustomComponent(ComponentCatalog createComponentCatalog) throws JSONException {
-        if (!validateActuatorCommand(createComponentCatalog)) {
+    /**
+     * Create a new custom component. The dimension and version attributes are used for determining
+     * if the component exists. If not, a new component is created which auto-generated id results
+     * the concatenation of dimension and version values.
+     * @param componentCatalog the component type to be added to the catalog
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * @throws JSONException
+     */
+    public boolean createCustomComponent(ComponentCatalog componentCatalog) throws JSONException {
+        if (!validateActuatorCommand(componentCatalog)) {
             return false;
         }
         String body;
-        if ((body = createBodyForComponentCreation(createComponentCatalog)) == null) {
+        if ((body = createBodyForComponentCreation(componentCatalog)) == null) {
             return false;
         }
         //initiating post for component creation
@@ -131,12 +156,22 @@ public class ComponentCatalogManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, createNewComponent, "create new custom component");
     }
 
-    public boolean updateAComponent(ComponentCatalog updateComponentCatalog, String componentId) throws JSONException {
-        if (!validateActuatorCommand(updateComponentCatalog)) {
+    /**
+     * Update a component type definition by creating a brand new component which definition is
+     * composed by the origin component data plus the requested changes having in mind that minor
+     * version info (version attribute) is incremented by 1.
+     * @param componentCatalog the component type to be updated in the catalog.
+     * @param componentId the identifier for the component to be updated.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * @throws JSONException
+     */
+    public boolean updateAComponent(ComponentCatalog componentCatalog, String componentId) throws JSONException {
+        if (!validateActuatorCommand(componentCatalog)) {
             return false;
         }
         String body;
-        if ((body = createBodyForComponentUpdation(updateComponentCatalog)) == null) {
+        if ((body = createBodyForComponentUpdate(componentCatalog)) == null) {
             return false;
         }
         //initiating put for component updation
@@ -156,27 +191,42 @@ public class ComponentCatalogManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, updateComponent, "update component");
     }
 
+    private boolean validateActuatorCommand(ComponentCatalog componentCatalog) {
+        if (componentCatalog.getComponentType().contentEquals("actuator") &&
+                componentCatalog.getActuatorCommandParams() == null) {
+            Log.i(TAG, "Command Parameters are mandatory for component catalog type \"actuator\"");
+            return false;
+        }
+        if (!componentCatalog.getComponentType().contentEquals("actuator") &&
+                componentCatalog.getCommandString() != null) {
+            Log.i(TAG, "Command Json(command string and params) not required  for catalog type \"" +
+                    componentCatalog.getComponentType() + "\"");
+            return false;
+        }
+        return true;
+    }
+
     //method to handle http body formation for creating custom component
-    private String createBodyForComponentCreation(ComponentCatalog createComponentCatalog) throws JSONException {
-        if (createComponentCatalog.getComponentName() == null || createComponentCatalog.getComponentVersion() == null ||
-                createComponentCatalog.getComponentType() == null || createComponentCatalog.getComponentDataType() == null ||
-                createComponentCatalog.getComponentFormat() == null || createComponentCatalog.getComponentUnit() == null ||
-                createComponentCatalog.getComponentDisplay() == null) {
+    private String createBodyForComponentCreation(ComponentCatalog componentCatalog) throws JSONException {
+        if (componentCatalog.getComponentName() == null || componentCatalog.getComponentVersion() == null ||
+                componentCatalog.getComponentType() == null || componentCatalog.getComponentDataType() == null ||
+                componentCatalog.getComponentFormat() == null || componentCatalog.getComponentUnit() == null ||
+                componentCatalog.getComponentDisplay() == null) {
             Log.i(TAG, "Mandatory field missing to create component catalog");
             return null;
         }
         JSONObject createComponentJson = new JSONObject();
-        createComponentJson.put("dimension", createComponentCatalog.getComponentName());
-        createComponentJson.put("version", createComponentCatalog.getComponentVersion());
-        createComponentJson.put("type", createComponentCatalog.getComponentType());
-        createComponentJson.put("dataType", createComponentCatalog.getComponentDataType());
-        createComponentJson.put("format", createComponentCatalog.getComponentFormat());
+        createComponentJson.put("dimension", componentCatalog.getComponentName());
+        createComponentJson.put("version", componentCatalog.getComponentVersion());
+        createComponentJson.put("type", componentCatalog.getComponentType());
+        createComponentJson.put("dataType", componentCatalog.getComponentDataType());
+        createComponentJson.put("format", componentCatalog.getComponentFormat());
         //add min,max values if exist
-        createComponentJson = addMinMaxValuesToHttpBody(createComponentCatalog, createComponentJson);
-        createComponentJson.put("measureunit", createComponentCatalog.getComponentUnit());
-        createComponentJson.put("display", createComponentCatalog.getComponentDisplay());
+        createComponentJson = addMinMaxValuesToHttpBody(componentCatalog, createComponentJson);
+        createComponentJson.put("measureunit", componentCatalog.getComponentUnit());
+        createComponentJson.put("display", componentCatalog.getComponentDisplay());
         //add command param, if exist
-        createComponentJson = addActuatorCommandParametersToHttpBody(createComponentCatalog, createComponentJson);
+        createComponentJson = addActuatorCommandParametersToHttpBody(componentCatalog, createComponentJson);
         return createComponentJson.toString();
     }
 
@@ -213,25 +263,25 @@ public class ComponentCatalogManagement extends ParentModule {
     }
 
     //method to handle http body formation for updating custom component
-    private String createBodyForComponentUpdation(ComponentCatalog updateComponentCatalog) throws JSONException {
+    private String createBodyForComponentUpdate(ComponentCatalog componentCatalog) throws JSONException {
         JSONObject updateComponentJson = new JSONObject();
-        if (updateComponentCatalog.getComponentType() != null) {
-            updateComponentJson.put("type", updateComponentCatalog.getComponentType());
+        if (componentCatalog.getComponentType() != null) {
+            updateComponentJson.put("type", componentCatalog.getComponentType());
         }
-        if (updateComponentCatalog.getComponentDataType() != null) {
-            updateComponentJson.put("dataType", updateComponentCatalog.getComponentDataType());
+        if (componentCatalog.getComponentDataType() != null) {
+            updateComponentJson.put("dataType", componentCatalog.getComponentDataType());
         }
-        if (updateComponentCatalog.getComponentFormat() != null) {
-            updateComponentJson.put("format", updateComponentCatalog.getComponentFormat());
+        if (componentCatalog.getComponentFormat() != null) {
+            updateComponentJson.put("format", componentCatalog.getComponentFormat());
         }
-        if (updateComponentCatalog.getComponentUnit() != null) {
-            updateComponentJson.put("measureunit", updateComponentCatalog.getComponentUnit());
+        if (componentCatalog.getComponentUnit() != null) {
+            updateComponentJson.put("measureunit", componentCatalog.getComponentUnit());
         }
-        if (updateComponentCatalog.getComponentDisplay() != null) {
-            updateComponentJson.put("display", updateComponentCatalog.getComponentDisplay());
+        if (componentCatalog.getComponentDisplay() != null) {
+            updateComponentJson.put("display", componentCatalog.getComponentDisplay());
         }
-        updateComponentJson = addMinMaxValuesToHttpBody(updateComponentCatalog, updateComponentJson);
-        updateComponentJson = addActuatorCommandParametersToHttpBody(updateComponentCatalog, updateComponentJson);
+        updateComponentJson = addMinMaxValuesToHttpBody(componentCatalog, updateComponentJson);
+        updateComponentJson = addActuatorCommandParametersToHttpBody(componentCatalog, updateComponentJson);
         return updateComponentJson.toString();
     }
 }

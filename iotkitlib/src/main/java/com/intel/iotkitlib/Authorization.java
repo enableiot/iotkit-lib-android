@@ -36,14 +36,31 @@ import org.json.JSONException;
 
 import java.util.List;
 
-
+/**
+ * Authorization functions
+ */
 public class Authorization extends ParentModule {
     private static final String TAG = "Authorization";
 
+    /**
+     * Module that handles authorization of user.
+     *
+     * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Authorization}
+     *
+     * @param requestStatusHandler The handler for asynchronously request to return data and status
+     *                             from the cloud.
+     */
     public Authorization(RequestStatusHandler requestStatusHandler) {
         super(requestStatusHandler);
     }
 
+    /**
+     * Get the JWT token for the user.
+     * @param username the user name that identifies the user. This is usually an email address.
+     * @param password the password for the user.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean getNewAuthorizationToken(String username, String password) {
         if (username == null) {
             Log.d(TAG, "username empty");
@@ -54,7 +71,8 @@ public class Authorization extends ParentModule {
             return false;
         }
         //adding header pair
-        List<NameValuePair> headers = Utilities.addHttpHeaders(Utilities.createEmptyListForHeaders(), IotKit.HEADER_CONTENT_TYPE_NAME, IotKit.HEADER_CONTENT_TYPE_JSON);
+        List<NameValuePair> headers = Utilities.addHttpHeaders(Utilities.createEmptyListForHeaders(),
+                IotKit.HEADER_CONTENT_TYPE_NAME, IotKit.HEADER_CONTENT_TYPE_JSON);
         //populating the JSON body
         String body = "{\"username\":" + "\"" + username + "\"," + "\"password\":" + "\"" + password + "\"}";
         //initiating post for authorization
@@ -79,6 +97,11 @@ public class Authorization extends ParentModule {
 
     }
 
+    /**
+     * Get user JWT token information.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean getAuthorizationTokenInfo() {
         //building basic header contains content-type and bearer token
         List<NameValuePair> headers;
@@ -106,6 +129,12 @@ public class Authorization extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, getTokenInfo, "auth token info");
     }
 
+    /**
+     * Validate the token. This is basically the same call as getAuthorizationTokenInfo() to verify
+     * that JWT token info can be retrieved.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean validateAuthToken() {
         //building basic header contains content-type and bearer token
         List<NameValuePair> headers;

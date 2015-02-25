@@ -65,8 +65,11 @@ public class AdvancedDataInquiry extends ParentModule {
     /**
      * Advanced Data Inquiry allows querying measurement data (values, location and attributes) for
      * a single account using advanced filtering and sorting.
+     *
+     * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Advanced-Data-Inquiry}
+     *
      * @param requestStatusHandler The handler for asynchronously request to return data and status
-     *                             from the cloud
+     *                             from the cloud.
      */
     public AdvancedDataInquiry(RequestStatusHandler requestStatusHandler) {
         super(requestStatusHandler);
@@ -78,8 +81,8 @@ public class AdvancedDataInquiry extends ParentModule {
     }
 
     /**
-     * Add a gateway id that is requested for the data in the report
-     * @param gatewayId The gateway identifier for gateway data to be included in the report
+     * Add a gateway id that is requested for the data in the report.
+     * @param gatewayId The gateway identifier for gateway data to be included in the report.
      */
     public void addGatewayId(String gatewayId) {
         if (this.gatewayIds == null) {
@@ -88,8 +91,8 @@ public class AdvancedDataInquiry extends ParentModule {
         this.gatewayIds.add(gatewayId);
     }
     /**
-     * Add a device id that is requested for the data in the report
-     * @param deviceId The device identifier for device data to be included in the report
+     * Add a device id that is requested for the data in the report.
+     * @param deviceId The device identifier for device data to be included in the report.
      */
     public void addDeviceId(String deviceId) {
         if (this.deviceIds == null) {
@@ -99,8 +102,8 @@ public class AdvancedDataInquiry extends ParentModule {
     }
 
     /**
-     * Add a component id that is requested for the data in the report
-     * @param componentId The component identifier for component data to be included in the report
+     * Add a component id that is requested for the data in the report.
+     * @param componentId The component identifier for component data to be included in the report.
      */
     public void addComponentId(String componentId) {
         if (this.componentIds == null) {
@@ -110,24 +113,24 @@ public class AdvancedDataInquiry extends ParentModule {
     }
 
     /**
-     * Set the start time for query data in be included in the report
-     * @param startTimestamp time in milliseconds since epoch time
+     * Set the start time for query data in be included in the report.
+     * @param startTimestamp time in milliseconds since epoch time.
      */
     public void setStartTimestamp(Long startTimestamp) {
         this.startTimestamp = startTimestamp;
     }
 
     /**
-     * Set the end time for query data in be included in the report
-     * @param endTimestamp time in milliseconds since epoch time
+     * Set the end time for query data in be included in the report.
+     * @param endTimestamp time in milliseconds since epoch time.
      */
     public void setEndTimestamp(Long endTimestamp) {
         this.endTimestamp = endTimestamp;
     }
 
     /**
-     * Add a requested attribute to a list of attributes that will be return for each measurement
-     * @param attribute The attribute to add to the list of attributes that will be part of the request
+     * Add a requested attribute to a list of attributes that will be return for each measurement.
+     * @param attribute The attribute to add to the list of attributes that will be part of the request.
      */
     public void addReturnedMeasureAttribute(String attribute) {
         if (this.returnedMeasureAttributes == null) {
@@ -137,15 +140,15 @@ public class AdvancedDataInquiry extends ParentModule {
     }
 
     /**
-     * Request for location (lat, long, alt) as part of each returned measurement
-     * @param measureLocation if true returns location
+     * Request for location (lat, long, alt) as part of each returned measurement.
+     * @param measureLocation if true returns location.
      */
     public void setShowMeasureLocation(Boolean measureLocation) {
         this.showMeasureLocation = measureLocation;
     }
 
     /**
-     * Filter request based on device and/or component attributes
+     * Filter request based on device and/or component attributes.
      * @param attributeFilter is of name and values.
      */
     public void addDevCompAttributeFilter(AttributeFilter attributeFilter) {
@@ -175,25 +178,25 @@ public class AdvancedDataInquiry extends ParentModule {
     }
 
     /**
-     * Limits the number of records returned for each component in the report
-     * @param componentRowLimit
+     * Limits the number of records returned for each component in the report.
+     * @param componentRowLimit the number of row that will be returned.
      */
     public void setComponentRowLimit(int componentRowLimit) {
         this.componentRowLimit = componentRowLimit;
     }
 
     /**
-     * Setting to true will return the number of rows that would have returned from this report
-     * @param countOnly true will return number of rows
+     * Setting to true will return the number of rows that would have returned from this report.
+     * @param countOnly true will return number of rows.
      */
     public void setCountOnly(Boolean countOnly) {
         this.countOnly = countOnly;
     }
 
     /**
-     * Add the sort criteria to the query
-     * @param name The sort field name
-     * @param value The source value. It must be "Asc" or "Desc"
+     * Add the sort criteria to the query.
+     * @param name The sort field name.
+     * @param value The source value. It must be "Asc" or "Desc".
      */
     public void addSortInfo(String name, String value) {
         if (this.sort == null) {
@@ -203,9 +206,9 @@ public class AdvancedDataInquiry extends ParentModule {
     }
 
     /**
-     * Starts a request for the report
+     * Starts a request for the report.
      * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}.
      * @throws JSONException
      */
     public boolean request() throws JSONException {
@@ -256,10 +259,10 @@ public class AdvancedDataInquiry extends ParentModule {
             }
             dataInquiryJson.put("componentIds", componentIdArray);
         }
-        dataInquiryJson.put("startTimestamp", this.startTimestamp);
-        dataInquiryJson.put("endTimestamp", this.endTimestamp);
-        /*dataInquiryJson.put("from", this.startTimestamp);
-        dataInquiryJson.put("to", this.endTimestamp);*/
+        //dataInquiryJson.put("startTimestamp", this.startTimestamp);
+        //dataInquiryJson.put("endTimestamp", this.endTimestamp);
+        dataInquiryJson.put("from", this.startTimestamp);
+        dataInquiryJson.put("to", this.endTimestamp);
         //returnedMeasureAttributes
         if (this.returnedMeasureAttributes != null) {
             JSONArray returnedMeasureAttributesArray = new JSONArray();

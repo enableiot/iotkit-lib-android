@@ -291,7 +291,11 @@ public class IotKit {
                 }
 
             } else if (urlToAppend.contains("device_id")) {
-                urlToAppend = urlToAppend.replace("device_id", Utilities.sharedPreferences.getString("deviceId", ""));
+                if (urlSlugNameValues != null && urlSlugNameValues.containsKey("device_id")) {
+                    urlToAppend = urlToAppend.replace("device_id",  urlSlugNameValues.get("account_id").toString());
+                } else {
+                    urlToAppend = urlToAppend.replace("device_id", Utilities.sharedPreferences.getString("deviceId", ""));
+                }
             } else if (urlToAppend.contains("user_id")) {
                 urlToAppend = urlToAppend.replace("user_id", urlSlugNameValues.get("user_id").toString());
             } else if (urlToAppend.contains("email")) {

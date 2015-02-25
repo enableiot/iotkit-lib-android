@@ -46,18 +46,21 @@ public class AccountManagement extends ParentModule {
 
     /**
      * Module that handles accounts and user related operations.
+     *
+     * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Account-Management}
+     *
      * @param requestStatusHandler The handler for asynchronously request to return data and status
-     *                             from the cloud
+     *                             from the cloud.
      */
     public AccountManagement(RequestStatusHandler requestStatusHandler) {
         super(requestStatusHandler);
     }
 
     /**
-     * Create an account with a name
-     * @param accountName name of the account to be created
+     * Create an account with a name.
+     * @param accountName name of the account to be created.
      * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
      */
     public boolean createAnAccount(String accountName) {
         if (accountName == null) {
@@ -86,9 +89,9 @@ public class AccountManagement extends ParentModule {
     }
 
     /**
-     * Get the information about an account
+     * Get the information about an account.
      * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
      */
     public boolean getAccountInformation() {
         //initiating get for account info
@@ -109,7 +112,7 @@ public class AccountManagement extends ParentModule {
      * Get the account activation code which is the transient code that can be used to activate
      * devices for the account. It expires after one hour.
      * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
      */
     public boolean getAccountActivationCode() {
         //initiating get for account activation code
@@ -129,7 +132,7 @@ public class AccountManagement extends ParentModule {
     /**
      * Force a renewal of the account activation code.
      * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
      */
     public boolean renewAccountActivationCode() {
     //initiating put for account activation code
@@ -178,9 +181,9 @@ public class AccountManagement extends ParentModule {
     }
 
     /**
-     * Delete the current account
+     * Delete the current account.
      * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
      */
     public boolean deleteAnAccount() {
         //initiating Delete of an account
@@ -201,11 +204,11 @@ public class AccountManagement extends ParentModule {
 
     /**
      * Add another user to your account.
-     * @param accountId The account id of the other user
-     * @param inviteeUserId The user id of the other user
-     * @param isAdmin The role for this user in the current account
+     * @param accountId The account id of the other user.
+     * @param inviteeUserId The user id of the other user.
+     * @param isAdmin The role for this user in the current account.
      * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
      * @throws JSONException
      */
     public boolean addAnotherUserToYourAccount(String accountId, String inviteeUserId, Boolean isAdmin) throws JSONException {

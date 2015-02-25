@@ -42,14 +42,29 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 
-
+/**
+ * Device management functions
+ */
 public class DeviceManagement extends ParentModule {
     private static final String TAG = "DeviceManagement";
 
+    /**
+     * Management of devices
+     *
+     * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Device-Management}
+     *
+     * @param requestStatusHandler The handler for asynchronously request to return data and status
+     *                             from the cloud.
+     */
     public DeviceManagement(RequestStatusHandler requestStatusHandler) {
         super(requestStatusHandler);
     }
 
+    /**
+     * Get a list of all devices for the specified account, with minimal data for each device.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}.
+     */
     public boolean getDeviceList() {
         //initiating get for device list
         HttpGetTask listDevices = new HttpGetTask(new HttpTaskHandler() {
@@ -65,6 +80,15 @@ public class DeviceManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, listDevices, "list all devices");
     }
 
+    // TODO: getFilteredDevices
+
+    /**
+     * Create a new device with the device info.
+     * @param objDevice the device info to create a new device with.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * @throws JSONException
+     */
     public boolean createNewDevice(Device objDevice) throws JSONException {
         String body;
         if ((body = createBodyForDeviceCreation(objDevice)) == null) {
@@ -90,6 +114,12 @@ public class DeviceManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, createNewDevice, "create new device");
     }
 
+    /**
+     * Get full detail for specific device for the specified account.
+     * @param deviceId the identifier for the device to get details for.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean getInfoOnDevice(String deviceId) {
         //initiating get for device info
         HttpGetTask getDeviceDetails = new HttpGetTask(new HttpTaskHandler() {
@@ -107,6 +137,12 @@ public class DeviceManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, getDeviceDetails, "other device info");
     }
 
+    /**
+     * Get full detail for newly created device for the specified account. The device id
+     * that is used will be the current device that is cached usually after a create new device.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean getMyDeviceInfo() {
         //initiating get for device info
         HttpGetTask getDeviceDetails = new HttpGetTask(new HttpTaskHandler() {
@@ -122,6 +158,15 @@ public class DeviceManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, getDeviceDetails, "my device info");
     }
 
+    /**
+     * Update a single device. The device ID (deviceId) cannot be updated as it is the key.
+     * If the device id does not exist, an error will be returned. The device id
+     * that is used will be the current device that is cached usually after a create new device.
+     * @param objUpdateDevice the device info to update the device with.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * @throws JSONException
+     */
     public boolean updateADevice(Device objUpdateDevice) throws JSONException {
         String body;
         if ((body = createBodyForDeviceUpdation(objUpdateDevice)) == null) {
@@ -142,6 +187,13 @@ public class DeviceManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, updateDevice, "update device");
     }
 
+    /**
+     * Delete a specific device for this account. All data from all time series associated with
+     * the device will be deleted.
+     * @param deviceId the identifier for the device that will be deleted.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean deleteADevice(String deviceId) {
         //initiating delete of device
         HttpDeleteTask deleteADevice = new HttpDeleteTask(new HttpTaskHandler() {
@@ -159,6 +211,15 @@ public class DeviceManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, deleteADevice, "delete device");
     }
 
+    /**
+     * Add component to an specific device. A component represents either a time series or an
+     * actuator. The type must already existing in the Component Type catalog.
+     * @param componentName the name that identifies the component.
+     * @param componentType the type of the component
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * @throws JSONException
+     */
     public boolean addComponentToDevice(String componentName, String componentType) throws JSONException {
         String body;
         if ((body = createBodyForAddComponent(componentName, componentType)) == null) {
@@ -191,6 +252,13 @@ public class DeviceManagement extends ParentModule {
     }
 
     /* TODO: need to be tested */
+    /**
+     * Delete a specific component for a specific device. All data will be unavailable. The device id
+     * that is used will be the current device that is cached usually after a create new device.
+     * @param componentName the name that identifies the component.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean deleteAComponent(final String componentName) {
         //initiating delete of component
         HttpDeleteTask deleteComponent = new HttpDeleteTask(new HttpTaskHandler() {
@@ -209,6 +277,13 @@ public class DeviceManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, deleteComponent, "delete  a component");
     }
 
+    /**
+     * Activates a specific device for the specified account.
+     * @param activationCode the activation code to be used for activating the device.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * @throws JSONException
+     */
     public boolean activateADevice(String activationCode) throws JSONException {
         if (Utilities.sharedPreferences.contains("deviceToken") &&
                 Utilities.sharedPreferences.getString("deviceToken", "") != null) {
@@ -243,6 +318,11 @@ public class DeviceManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, activateDevice, "activate a device");
     }
 
+    /**
+     * Get a list of all devices's attribute for the specified account.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean getAllAttributes() {
         //initiating get for all attributes
         HttpGetTask listAttributes = new HttpGetTask(new HttpTaskHandler() {
@@ -258,6 +338,11 @@ public class DeviceManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, listAttributes, "list all attributes");
     }
 
+    /**
+     * Get a list of all tags from devices for the specified account.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     */
     public boolean getAllTags() {
         //initiating get for all tags
         HttpGetTask listTags = new HttpGetTask(new HttpTaskHandler() {

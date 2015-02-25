@@ -45,6 +45,9 @@ public class InvitationManagement extends ParentModule {
      * administrator permission. After created, invitation notification will be send as an email
      * message to the specific email account. Invited user has to login into IoT dashboard and
      * the accept/decline received invitation.
+     *
+     * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Invitation-Management}
+     *
      * @param requestStatusHandler The handler for asynchronously request to return data and status
      *                             from the cloud
      */

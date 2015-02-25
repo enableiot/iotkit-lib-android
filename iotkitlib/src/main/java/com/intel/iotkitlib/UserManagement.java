@@ -50,6 +50,9 @@ public class UserManagement extends ParentModule {
 
     /**
      * User management features
+     *
+     * For more info, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/User-Management}
+     *
      * @param requestStatusHandler The handler for asynchronously request to return data and status
      *                             from the cloud
      */

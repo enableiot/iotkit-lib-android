@@ -40,14 +40,31 @@ import org.json.JSONObject;
 
 import java.util.LinkedHashMap;
 
-
+/**
+ * Rule management functions
+ */
 public class RuleManagement extends ParentModule {
     private final static String TAG = "RuleManagement";
 
+    /**
+     * Module that manages rules. manage Rules. A rule is an association between one or more
+     * device's components, a set of conditions for those components, and a number of actions
+     * that have to be triggered in case those conditions are met.
+     *
+     * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Rule-Management}
+     *
+     * @param requestStatusHandler The handler for asynchronously request to return data and status
+     *                             from the cloud
+     */
     public RuleManagement(RequestStatusHandler requestStatusHandler) {
         super(requestStatusHandler);
     }
 
+    /**
+     * Get a list of all rules for the specified account.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     */
     public boolean getListOfRules() {
         //initiating get for list of rules
         HttpGetTask listOfRules = new HttpGetTask(new HttpTaskHandler() {
@@ -63,6 +80,12 @@ public class RuleManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, listOfRules, "list of rules");
     }
 
+    /**
+     * Get specific rule details for the account
+     * @param ruleId the identifier for the rule to retrieve info for.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     */
     public boolean getInformationOnRule(String ruleId) {
         if (ruleId == null) {
             Log.d(TAG, "rule id cannot be null");
@@ -84,6 +107,12 @@ public class RuleManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, infoOnRule, "info on one rule");
     }
 
+    /**
+     * Delete a specific draft rule for account.
+     * @param ruleId the identifier for the rule to delete.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     */
     public boolean deleteADraftRule(String ruleId) {
         if (ruleId == null) {
             Log.d(TAG, "rule id cannot be null");
@@ -105,6 +134,15 @@ public class RuleManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, deleteDraftRule, "delete draft rule");
     }
 
+    /**
+     * Update the status of the rule. Cannot be used for changing the status of draft rule.
+     * Status value should be one of the following: ["Active", "Archived", "On-hold"]
+     * @param ruleId the identifier for the rule to have the status updated.
+     * @param status value should be one of the following: ["Active", "Archived", "On-hold"]
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     * @throws JSONException
+     */
     public boolean updateStatusOfRule(String ruleId, String status) throws JSONException {
         if (ruleId == null || status == null) {
             Log.d(TAG, "rule id or status cannot be null");
@@ -131,6 +169,13 @@ public class RuleManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, createInvitation, "update status of rule");
     }
 
+    /**
+     * Create a rule with a status - "Draft" for the specified account.
+     * @param ruleName the name of the rule to create a draft
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     * @throws JSONException
+     */
     public boolean createRuleAsDraft(String ruleName) throws JSONException {
         if (ruleName == null) {
             Log.d(TAG, "rule name cannot be null");
@@ -155,6 +200,14 @@ public class RuleManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, createDraftRule, "create draft rule");
     }
 
+    /**
+     * Update the rule.
+     * @param updateRuleObj the information that is used to update the rule with.
+     * @param ruleId the identifier for the rule to be updated.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}.
+     * @throws JSONException
+     */
     public boolean updateARule(Rule updateRuleObj, String ruleId) throws JSONException {
         if (updateRuleObj == null) {
             Log.d(TAG, "rule Object cannot be null");
@@ -181,6 +234,13 @@ public class RuleManagement extends ParentModule {
         return super.invokeHttpExecuteOnURL(url, updateRule, "update a rule");
     }
 
+    /**
+     * Create a rule.
+     * @param ruleObj the information needed to create a new rule with.
+     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}.
+     * @throws JSONException
+     */
     public boolean createARule(Rule ruleObj) throws JSONException {
         if (ruleObj == null) {
             Log.d(TAG, "rule Object cannot be null");
