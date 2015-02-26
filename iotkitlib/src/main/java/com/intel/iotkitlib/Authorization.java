@@ -24,6 +24,7 @@ package com.intel.iotkitlib;
 
 import android.util.Log;
 
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpTaskHandler;
@@ -42,6 +43,11 @@ import java.util.List;
 public class Authorization extends ParentModule {
     private static final String TAG = "Authorization";
 
+    // Errors
+    public static final String ERR_INVALID_USERNAME = "Invalid user name";
+    public static final String ERR_EMPTY_PASSWORD = "Empty password";
+    public static final String ERR_INVALID_BEARER = "bearer token cannot be empty";
+
     /**
      * Module that handles authorization of user.
      *
@@ -58,17 +64,19 @@ public class Authorization extends ParentModule {
      * Get the JWT token for the user.
      * @param username the user name that identifies the user. This is usually an email address.
      * @param password the password for the user.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getNewAuthorizationToken(String username, String password) {
+    public CloudResponse getNewAuthorizationToken(String username, String password) {
         if (username == null) {
-            Log.d(TAG, "username empty");
-            return false;
+            Log.d(TAG, ERR_INVALID_USERNAME);
+            return new CloudResponse(false, ERR_INVALID_USERNAME);
         }
         if (password == null) {
-            Log.d(TAG, "password empty");
-            return false;
+            Log.d(TAG, ERR_EMPTY_PASSWORD);
+            return new CloudResponse(false, ERR_EMPTY_PASSWORD);
         }
         //adding header pair
         List<NameValuePair> headers = Utilities.addHttpHeaders(Utilities.createEmptyListForHeaders(),
@@ -76,84 +84,85 @@ public class Authorization extends ParentModule {
         //populating the JSON body
         String body = "{\"username\":" + "\"" + username + "\"," + "\"password\":" + "\"" + password + "\"}";
         //initiating post for authorization
-        HttpPostTask getAuthToken = new HttpPostTask(new HttpTaskHandler() {
+        HttpPostTask getAuthToken = new HttpPostTask();
+
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
             @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
+            public void readResponse(CloudResponse response) {
+                Log.d(TAG, String.valueOf(response.getCode()));
+                Log.d(TAG, response.getResponse());
                 //parse and store auth-token
                 try {
-                    AuthorizationToken.parseAndStoreAuthorizationToken(response, responseCode);
+                    AuthorizationToken.parseAndStoreAuthorizationToken(response.getResponse(),
+                                                                       response.getCode());
                 } catch (JSONException je) {
                     je.printStackTrace();
                 }
-                statusHandler.readResponse(responseCode, response);
             }
-        });
+        };
         getAuthToken.setHeaders(headers);
         getAuthToken.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.newAuthToken, null);
-        return super.invokeHttpExecuteOnURL(url, getAuthToken, "new auth token");
+        return super.invokeHttpExecuteOnURL(url, getAuthToken, preProcessing);
 
     }
 
     /**
      * Get user JWT token information.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getAuthorizationTokenInfo() {
+    public CloudResponse getAuthorizationTokenInfo() {
         //building basic header contains content-type and bearer token
         List<NameValuePair> headers;
         if ((headers = Utilities.createBasicHeadersWithBearerToken()) == null) {
-            Log.d(TAG, "bearer token cannot be empty");
-            return false;
+            Log.d(TAG, ERR_INVALID_BEARER);
+            return new CloudResponse(false, ERR_INVALID_BEARER);
         }
         //initiating get for token info
-        HttpGetTask getTokenInfo = new HttpGetTask(new HttpTaskHandler() {
+        HttpGetTask getTokenInfo = new HttpGetTask();
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
             @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                //store auth-token related info(account-id,..)
+            public void readResponse(CloudResponse response) {
+                Log.d(TAG, String.valueOf(response.getCode()));
+                Log.d(TAG, response.getResponse());
+                //parse and store auth-token
                 try {
-                    AuthorizationToken.parseAndStoreAuthorizationTokenInfo(response, responseCode);
+                    AuthorizationToken.parseAndStoreAuthorizationTokenInfo(response.getResponse(),
+                            response.getCode());
                 } catch (JSONException je) {
                     je.printStackTrace();
                 }
-                statusHandler.readResponse(responseCode, response);
             }
-        });
+        };
+
         getTokenInfo.setHeaders(headers);
         String url = objIotKit.prepareUrl(objIotKit.authTokenInfo, null);
-        return super.invokeHttpExecuteOnURL(url, getTokenInfo, "auth token info");
+        return super.invokeHttpExecuteOnURL(url, getTokenInfo, preProcessing);
     }
 
     /**
      * Validate the token. This is basically the same call as getAuthorizationTokenInfo() to verify
      * that JWT token info can be retrieved.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean validateAuthToken() {
+    public CloudResponse validateAuthToken() {
         //building basic header contains content-type and bearer token
         List<NameValuePair> headers;
         if ((headers = Utilities.createBasicHeadersWithBearerToken()) == null) {
-            Log.d(TAG, "bearer token cannot be empty");
-            return false;
+            Log.d(TAG, ERR_INVALID_BEARER);
+            return new CloudResponse(false, ERR_INVALID_BEARER);
         }
         //initiating get for validating token info
-        HttpGetTask validateToken = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask validateToken = new HttpGetTask();
         validateToken.setHeaders(headers);
         String url = objIotKit.prepareUrl(objIotKit.authTokenInfo, null);
-        return super.invokeHttpExecuteOnURL(url, validateToken, "validate auth token");
+        return super.invokeHttpExecuteOnURL(url, validateToken);
     }
 }
 

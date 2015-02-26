@@ -24,6 +24,7 @@ package com.intel.iotkitlib;
 
 import android.util.Log;
 
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpTaskHandler;
 import com.intel.iotkitlib.models.AttributeFilter;
@@ -42,6 +43,10 @@ import java.util.List;
  */
 public class AdvancedDataInquiry extends ParentModule {
     private final static String TAG = "AdvancedDataEnquiry";
+
+    // Errors
+    public final static String ERR_INVALID_REQUEST = "Invalid body for request";
+
     String msgType;
     List<String> gatewayIds;
     List<String> deviceIds;
@@ -207,28 +212,23 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Starts a request for the report.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}.
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean request() throws JSONException {
+    public CloudResponse request() throws JSONException {
         String body;
         if ((body = createBodyForAdvancedDataInquiry()) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_REQUEST);
         }
         //initiating post for advanced data inquiry
-        HttpPostTask advancedDataInquiry = new HttpPostTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPostTask advancedDataInquiry = new HttpPostTask();
         advancedDataInquiry.setHeaders(basicHeaderList);
         advancedDataInquiry.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.advancedEnquiryOfData, null);
-        return super.invokeHttpExecuteOnURL(url, advancedDataInquiry, "advanced data inquiry");
+        return super.invokeHttpExecuteOnURL(url, advancedDataInquiry);
     }
 
     private String createBodyForAdvancedDataInquiry() throws JSONException {

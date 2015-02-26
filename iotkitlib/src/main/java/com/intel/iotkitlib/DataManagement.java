@@ -24,6 +24,7 @@ package com.intel.iotkitlib;
 
 import android.util.Log;
 
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpTaskHandler;
 import com.intel.iotkitlib.models.TimeSeriesData;
@@ -43,10 +44,23 @@ import java.util.List;
 public class DataManagement extends ParentModule {
     private final static String TAG = "DataManagement";
 
+    // Error strings
+    public final static String ERR_SUBMIT_DATA = "Cannot submit data for device component";
+    public final static String ERR_CREATE_DATA = "Cannot create request for submit data";
+    public final static String ERR_INVALID_DATA = "device List or componentId List cannot be null";
+
+
     /**
-     * Submit and retrieve data for a device.
+     * Submit and retrieve data for a device. This is use to do sync operation.
      *
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Data-API}
+     */
+    public DataManagement() {
+        super(null);
+    }
+
+    /**
+     * Submit and retrieve data for a device.
      *
      * @param requestStatusHandler The handler for asynchronously request to return data and status
      *                             from the cloud.
@@ -64,38 +78,31 @@ public class DataManagement extends ParentModule {
      * @param latitude lat location for the device in decimal
      * @param longitude lon location for the device in decimal
      * @param height altitude value in meters
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean submitData(String componentName, String componentValue,
+    public CloudResponse submitData(String componentName, String componentValue,
                               Double latitude, Double longitude, Double height) throws JSONException {
         String componentId = validateRequestBodyParametersAndGetcomponentId(componentName, componentValue);
         if (componentId == null) {
-            Log.d(TAG, "Cannot submit data for device component");
-            return false;
+            Log.d(TAG, ERR_SUBMIT_DATA);
+            return new CloudResponse(false, ERR_SUBMIT_DATA);
         }
         String body = createHttpBodyToSubmitData(componentId, componentValue, latitude, longitude, height);
         //initiating post for data submission
-        HttpPostTask submitDeviceData = new HttpPostTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-
-            }
-        });
+        HttpPostTask submitDeviceData = new HttpPostTask();
         List<NameValuePair> submitDataHeaders = Utilities.createBasicHeadersWithDeviceToken();
         if (submitDataHeaders == null) {
-            Log.d(TAG, "Cannot create request for submit data");
-            return false;
+            Log.d(TAG, ERR_CREATE_DATA);
+            return new CloudResponse(false, ERR_CREATE_DATA);
         }
 
         submitDeviceData.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.submitData, null);
-        return super.invokeHttpExecuteOnURL(url, submitDeviceData, "submit data");
-
+        return super.invokeHttpExecuteOnURL(url, submitDeviceData);
     }
 
     /**
@@ -107,32 +114,26 @@ public class DataManagement extends ParentModule {
      * @param latitude lat location for the device in decimal
      * @param longitude lon location for the device in decimal
      * @param height altitude value in meters
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean submitData(String deviceId, String componentName, String componentValue,
+    public CloudResponse submitData(String deviceId, String componentName, String componentValue,
                               Double latitude, Double longitude, Double height) throws JSONException {
         String componentId = validateRequestBodyParametersAndGetcomponentId(componentName, componentValue);
         if (componentId == null) {
-            Log.d(TAG, "Cannot submit data for device component");
-            return false;
+            Log.d(TAG, ERR_SUBMIT_DATA);
+            return new CloudResponse(false, ERR_SUBMIT_DATA);
         }
         String body = createHttpBodyToSubmitData(componentId, componentValue, latitude, longitude, height);
         //initiating post for data submission
-        HttpPostTask submitDeviceData = new HttpPostTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-
-            }
-        });
+        HttpPostTask submitDeviceData = new HttpPostTask();
         List<NameValuePair> submitDataHeaders = Utilities.createBasicHeadersWithDeviceToken();
         if (submitDataHeaders == null) {
-            Log.d(TAG, "Cannot create request for submit data");
-            return false;
+            Log.d(TAG, ERR_CREATE_DATA);
+            return new CloudResponse(false, ERR_CREATE_DATA);
         }
 
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
@@ -140,36 +141,30 @@ public class DataManagement extends ParentModule {
         submitDeviceData.setHeaders(submitDataHeaders);
         submitDeviceData.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.submitData, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, submitDeviceData, "submit data");
+        return super.invokeHttpExecuteOnURL(url, submitDeviceData);
 
     }
 
     /**
      * Retrieve data for an account.
      * @param objTimeSeriesData time series data criteria for retrieve data from the cloud
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean retrieveData(TimeSeriesData objTimeSeriesData) throws JSONException {
+    public CloudResponse retrieveData(TimeSeriesData objTimeSeriesData) throws JSONException {
         if (!validateRetrieveDataValues(objTimeSeriesData)) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_DATA);
         }
         String body = createHttpBodyToRetrieveData(objTimeSeriesData);
         //initiating post for data retrieval
-        HttpPostTask retrieveDataTask = new HttpPostTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-
-            }
-        });
+        HttpPostTask retrieveDataTask = new HttpPostTask();
         retrieveDataTask.setHeaders(basicHeaderList);
         retrieveDataTask.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.retrieveData, null);
-        return super.invokeHttpExecuteOnURL(url, retrieveDataTask, "retrieve the data");
+        return super.invokeHttpExecuteOnURL(url, retrieveDataTask);
 
     }
 
@@ -197,7 +192,7 @@ public class DataManagement extends ParentModule {
 
     private boolean validateRetrieveDataValues(TimeSeriesData objTimeSeriesData) {
         if (objTimeSeriesData.getDeviceList() == null || objTimeSeriesData.getComponentIdList() == null) {
-            Log.d(TAG, "device List or componentId List cannot be null");
+            Log.d(TAG, ERR_INVALID_DATA);
             return false;
         }
         return true;

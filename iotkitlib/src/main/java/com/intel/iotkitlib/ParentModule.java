@@ -26,6 +26,11 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.intel.iotkitlib.http.CloudResponse;
+import com.intel.iotkitlib.http.HttpDeleteTask;
+import com.intel.iotkitlib.http.HttpGetTask;
+import com.intel.iotkitlib.http.HttpPostTask;
+import com.intel.iotkitlib.http.HttpTask;
+import com.intel.iotkitlib.http.HttpTaskHandler;
 import com.intel.iotkitlib.utils.IotKit;
 import com.intel.iotkitlib.utils.Utilities;
 
@@ -39,7 +44,9 @@ import java.util.concurrent.ExecutionException;
  */
 public class ParentModule {
     private final static String TAG = "ParentModule";
-    private final static Boolean ASYNC = true;
+
+    // Errors
+    private final static String ERR_INVALID_URL = "Http request Url Cannot be null";
 
     protected RequestStatusHandler statusHandler;
     protected IotKit objIotKit;
@@ -51,26 +58,48 @@ public class ParentModule {
         basicHeaderList = Utilities.createBasicHeadersWithBearerToken();
     }
 
-    protected boolean invokeHttpExecuteOnURL(String url, AsyncTask<String, Void, CloudResponse> httpTask, String taskDescription) {
+    protected CloudResponse invokeHttpExecuteOnURL(String url, HttpTask httpTask) {
         if (url == null || url.isEmpty()) {
-            Log.e(TAG, "Http request Url Cannot be null");
-            return false;
+            Log.e(TAG, ERR_INVALID_URL);
+            return new CloudResponse(false, ERR_INVALID_URL);
         }
 
-        if (ASYNC) {
-            httpTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
-            return true;
+        // Async mode
+        if (this.statusHandler != null) {
+            return httpTask.doAsync(url, new HttpTaskHandler() {
+                @Override
+                public void taskResponse(int responseCode, String response) {
+                    statusHandler.readResponse(new CloudResponse(responseCode, response));
+                }
+            });
         } else {
-            try {
-                httpTask.execute(url).get();
-                return true;
-            } catch (InterruptedException e) {
-                Log.e(taskDescription, "InterruptedException", e);
-                return false;
-            } catch (ExecutionException e) {
-                Log.e(taskDescription, "ExecutionException", e);
-                return false;
-            }
+            // Sync mode
+            return httpTask.doSync(url);
+        }
+    }
+
+    protected CloudResponse invokeHttpExecuteOnURL(String url, HttpTask httpTask,
+                                                   final RequestStatusHandler preProcessing) {
+        if (url == null || url.isEmpty()) {
+            Log.e(TAG, ERR_INVALID_URL);
+            return new CloudResponse(false, ERR_INVALID_URL);
+        }
+
+        // Async mode
+        if (this.statusHandler != null) {
+            return httpTask.doAsync(url, new HttpTaskHandler() {
+                @Override
+                public void taskResponse(int responseCode, String response) {
+                    CloudResponse cloudResponse = new CloudResponse(responseCode, response);
+                    preProcessing.readResponse(cloudResponse);
+                    statusHandler.readResponse(cloudResponse);
+                }
+            });
+        } else {
+            // Sync mode
+            CloudResponse response = httpTask.doSync(url);
+            preProcessing.readResponse(response);
+            return response;
         }
     }
 }

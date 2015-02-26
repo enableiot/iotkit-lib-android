@@ -22,7 +22,31 @@
  */
 package com.intel.iotkitlib.http;
 
+/**
+ * Cloud response data structure
+ */
 public class CloudResponse {
+    boolean status;
     int code;
     String response;
+
+    public CloudResponse() {
+        status = false;
+        code = 0;
+        response = "";
+    }
+
+    public CloudResponse(boolean status, String msg) {
+        this.status = status;
+        this.response = msg;
+    }
+
+    public CloudResponse(int code, String response) {
+        this.code = code;
+        this.response = response;
+    }
+
+    public int getCode() { return code; }
+    public String getResponse() { return response; }
+    public boolean getStatus() { return status; }
 }

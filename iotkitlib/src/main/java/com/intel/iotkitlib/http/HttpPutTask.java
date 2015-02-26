@@ -43,18 +43,33 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
 
-public class HttpPutTask extends AsyncTask<String, Void, CloudResponse> {
+public class HttpPutTask implements HttpTask {
     private static final String TAG = "HttpPutTask";
     private static final boolean debug = true;
     private List<NameValuePair> headerList;
     private String httpBody;
-    private HttpTaskHandler taskHandler;
 
-    public HttpPutTask(HttpTaskHandler taskHandler) {
-        this.taskHandler = taskHandler;
+    private AsyncTask<String, Void, CloudResponse> asyncTask;
+
+    public CloudResponse doAsync(final String url, final HttpTaskHandler taskHandler) {
+        asyncTask = new AsyncTask<String, Void, CloudResponse>() {
+            @Override
+            protected CloudResponse doInBackground(String... urls) {
+                return doSync(urls[0]);
+            }
+            protected void onPostExecute(CloudResponse response) {
+                // Done on UI Thread
+                if (response != null && taskHandler != null) {
+                    taskHandler.taskResponse(response.code, response.response);
+                }
+            }
+        };
+        asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+        return new CloudResponse(true, "Successful execute " + url);
     }
 
-    private CloudResponse doWork(HttpClient httpClient, String url) {
+    public CloudResponse doSync(final String url) {
+        HttpClient httpClient = new DefaultHttpClient();
         try {
             HttpContext localContext = new BasicHttpContext();
             HttpPut httpPut = new HttpPut(url);
@@ -109,24 +124,11 @@ public class HttpPutTask extends AsyncTask<String, Void, CloudResponse> {
             return cloudResponse;
         } catch (java.net.ConnectException cEx) {
             Log.e(TAG, cEx.getMessage());
-            return null;
+            return new CloudResponse(false, cEx.getMessage());
         } catch (Exception e) {
             Log.e(TAG, e.toString());
             e.printStackTrace();
-            return null;
-        }
-    }
-
-    protected CloudResponse doInBackground(String... url) {
-        // Performed on Background Thread
-        HttpClient httpClient = new DefaultHttpClient();
-        return doWork(httpClient, url[0]);
-    }
-
-    protected void onPostExecute(CloudResponse response) {
-        // Done on UI Thread
-        if (response != null) {
-            taskHandler.taskResponse(response.code, response.response);
+            return new CloudResponse(false, e.getMessage());
         }
     }
 

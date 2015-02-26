@@ -24,6 +24,7 @@ package com.intel.iotkitlib;
 
 import android.util.Log;
 
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpTaskHandler;
 import com.intel.iotkitlib.models.AttributeFilter;
@@ -42,6 +43,10 @@ import java.util.List;
  */
 public class AggregatedReportInterface extends ParentModule {
     private final static String TAG = "AggregatedRpttInterface";
+
+    // Errors
+    public final static String ERR_INVALID_REQUEST = "Invalid body for request";
+
     Long startTimestamp;
     Long endTimestamp;
     List<String> aggregationMethods;
@@ -204,28 +209,23 @@ public class AggregatedReportInterface extends ParentModule {
 
     /**
      * Starts a request for the report.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}.
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean request() throws JSONException {
+    public CloudResponse request() throws JSONException {
         String body;
         if ((body = createBodyForAggregatedReportInterface()) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_REQUEST);
         }
         //initiating post for aggregated report interface
-        HttpPostTask reportInterface = new HttpPostTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPostTask reportInterface = new HttpPostTask();
         reportInterface.setHeaders(basicHeaderList);
         reportInterface.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.aggregatedReportInterface, null);
-        return super.invokeHttpExecuteOnURL(url, reportInterface, "aggregated report interface");
+        return super.invokeHttpExecuteOnURL(url, reportInterface);
     }
 
     private String createBodyForAggregatedReportInterface() throws JSONException {

@@ -22,9 +22,11 @@
  */
 package com.intel.iotkitlib;
 
+import com.intel.iotkitlib.http.CloudResponse;
+
 /**
  * The interface for the handler that will get the result from cloud request
  */
 public interface RequestStatusHandler {
-    void readResponse(int responseCode, String response);
+    void readResponse(CloudResponse response);
 }

@@ -24,6 +24,7 @@ package com.intel.iotkitlib;
 
 import android.util.Log;
 
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpDeleteTask;
 import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
@@ -48,7 +49,15 @@ import java.util.UUID;
 public class DeviceManagement extends ParentModule {
     private static final String TAG = "DeviceManagement";
 
+    // Errors
+    public static final String ERR_INVALID_DEVICE_ID = "Device Id cannot be empty";
+    public static final String ERR_INVALID_BODY = "Invalid body for submit";
+    public static final String ERR_INVALID_CREATE = "Cannot create request for add component";
+    public static final String ERR_ALREADY_ACTIVATE = "activateADevice::Device appears to be already activated. Could not proceed";
+    public static final String ERR_INVALID_ACTIVATION = "activateADevice::Activation Code cannot be NULL";
+
     /**
+     *
      * Management of devices
      *
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Device-Management}
@@ -62,22 +71,17 @@ public class DeviceManagement extends ParentModule {
 
     /**
      * Get a list of all devices for the specified account, with minimal data for each device.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}.
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getDeviceList() {
+    public CloudResponse getDeviceList() {
         //initiating get for device list
-        HttpGetTask listDevices = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask listDevices = new HttpGetTask();
         listDevices.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.listDevices, null);
-        return super.invokeHttpExecuteOnURL(url, listDevices, "list all devices");
+        return super.invokeHttpExecuteOnURL(url, listDevices);
     }
 
     // TODO: getFilteredDevices
@@ -85,77 +89,68 @@ public class DeviceManagement extends ParentModule {
     /**
      * Create a new device with the device info.
      * @param objDevice the device info to create a new device with.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean createNewDevice(Device objDevice) throws JSONException {
+    public CloudResponse createNewDevice(Device objDevice) throws JSONException {
         String body;
         if ((body = createBodyForDeviceCreation(objDevice)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_DEVICE_ID);
         }
         //initiating post for device creation
-        HttpPostTask createNewDevice = new HttpPostTask(new HttpTaskHandler() {
+        HttpPostTask createNewDevice = new HttpPostTask();
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
             @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
+            public void readResponse(CloudResponse response) {
                 try {
-                    DeviceToken.parseAndStoreDeviceId(response);
+                    DeviceToken.parseAndStoreDeviceId(response.getResponse());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                statusHandler.readResponse(responseCode, response);
             }
-        });
+        };
+
         createNewDevice.setHeaders(basicHeaderList);
         createNewDevice.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.createDevice, null);
-        return super.invokeHttpExecuteOnURL(url, createNewDevice, "create new device");
+        return super.invokeHttpExecuteOnURL(url, createNewDevice, preProcessing);
     }
 
     /**
      * Get full detail for specific device for the specified account.
      * @param deviceId the identifier for the device to get details for.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getInfoOnDevice(String deviceId) {
+    public CloudResponse getInfoOnDevice(String deviceId) {
         //initiating get for device info
-        HttpGetTask getDeviceDetails = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask getDeviceDetails = new HttpGetTask();
         getDeviceDetails.setHeaders(basicHeaderList);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("other_device_id", deviceId);
         String url = objIotKit.prepareUrl(objIotKit.getOneDeviceInfo, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, getDeviceDetails, "other device info");
+        return super.invokeHttpExecuteOnURL(url, getDeviceDetails);
     }
 
     /**
      * Get full detail for newly created device for the specified account. The device id
      * that is used will be the current device that is cached usually after a create new device.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getMyDeviceInfo() {
+    public CloudResponse getMyDeviceInfo() {
         //initiating get for device info
-        HttpGetTask getDeviceDetails = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask getDeviceDetails = new HttpGetTask();
         getDeviceDetails.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.getMyDeviceInfo, null);
-        return super.invokeHttpExecuteOnURL(url, getDeviceDetails, "my device info");
+        return super.invokeHttpExecuteOnURL(url, getDeviceDetails);
     }
 
     /**
@@ -163,52 +158,42 @@ public class DeviceManagement extends ParentModule {
      * If the device id does not exist, an error will be returned. The device id
      * that is used will be the current device that is cached usually after a create new device.
      * @param objUpdateDevice the device info to update the device with.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean updateADevice(Device objUpdateDevice) throws JSONException {
+    public CloudResponse updateADevice(Device objUpdateDevice) throws JSONException {
         String body;
         if ((body = createBodyForDeviceUpdation(objUpdateDevice)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating put for device updation
-        HttpPutTask updateDevice = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask updateDevice = new HttpPutTask();
         updateDevice.setHeaders(basicHeaderList);
         updateDevice.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.updateDevice, null);
-        return super.invokeHttpExecuteOnURL(url, updateDevice, "update device");
+        return super.invokeHttpExecuteOnURL(url, updateDevice);
     }
 
     /**
      * Delete a specific device for this account. All data from all time series associated with
      * the device will be deleted.
      * @param deviceId the identifier for the device that will be deleted.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean deleteADevice(String deviceId) {
+    public CloudResponse deleteADevice(String deviceId) {
         //initiating delete of device
-        HttpDeleteTask deleteADevice = new HttpDeleteTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpDeleteTask deleteADevice = new HttpDeleteTask();
         deleteADevice.setHeaders(basicHeaderList);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("other_device_id", deviceId);
         String url = objIotKit.prepareUrl(objIotKit.deleteDevice, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, deleteADevice, "delete device");
+        return super.invokeHttpExecuteOnURL(url, deleteADevice);
     }
 
     /**
@@ -216,39 +201,39 @@ public class DeviceManagement extends ParentModule {
      * actuator. The type must already existing in the Component Type catalog.
      * @param componentName the name that identifies the component.
      * @param componentType the type of the component
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean addComponentToDevice(String componentName, String componentType) throws JSONException {
+    public CloudResponse addComponentToDevice(String componentName, String componentType) throws JSONException {
         String body;
         if ((body = createBodyForAddComponent(componentName, componentType)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating post for device creation
-        HttpPostTask addComponent = new HttpPostTask(new HttpTaskHandler() {
+        HttpPostTask addComponent = new HttpPostTask();
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
             @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
+            public void readResponse(CloudResponse response) {
                 try {
-                    DeviceToken.parseAndStoreComponent(response, responseCode);
+                    DeviceToken.parseAndStoreComponent(response.getResponse(), response.getCode());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                statusHandler.readResponse(responseCode, response);
-
             }
-        });
+        };
+
         List<NameValuePair> submitDataHeaders = Utilities.createBasicHeadersWithDeviceToken();
         if (submitDataHeaders == null) {
-            Log.d(TAG, "Cannot create request for add component");
-            return false;
+            Log.d(TAG, ERR_INVALID_CREATE);
+            return new CloudResponse(false, ERR_INVALID_CREATE);
         }
         addComponent.setHeaders(submitDataHeaders);
         addComponent.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.addComponent, null);
-        return super.invokeHttpExecuteOnURL(url, addComponent, "add component to device");
+        return super.invokeHttpExecuteOnURL(url, addComponent, preProcessing);
     }
 
     /* TODO: need to be tested */
@@ -256,106 +241,91 @@ public class DeviceManagement extends ParentModule {
      * Delete a specific component for a specific device. All data will be unavailable. The device id
      * that is used will be the current device that is cached usually after a create new device.
      * @param componentName the name that identifies the component.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean deleteAComponent(final String componentName) {
+    public CloudResponse deleteAComponent(final String componentName) {
         //initiating delete of component
-        HttpDeleteTask deleteComponent = new HttpDeleteTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                DeviceToken.deleteTheComponentFromStorage(componentName, responseCode);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpDeleteTask deleteComponent = new HttpDeleteTask();
         deleteComponent.setHeaders(basicHeaderList);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("cname", componentName);
         String url = objIotKit.prepareUrl(objIotKit.deleteComponent, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, deleteComponent, "delete  a component");
+        return super.invokeHttpExecuteOnURL(url, deleteComponent);
     }
 
     /**
      * Activates a specific device for the specified account.
      * @param activationCode the activation code to be used for activating the device.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean activateADevice(String activationCode) throws JSONException {
+    public CloudResponse activateADevice(String activationCode) throws JSONException {
         if (Utilities.sharedPreferences.contains("deviceToken") &&
                 Utilities.sharedPreferences.getString("deviceToken", "") != null) {
-            Log.i(TAG, "activateADevice::Device appears to be already activated. Could not proceed\n");
-            return false;
+            Log.i(TAG, ERR_ALREADY_ACTIVATE);
+            return new CloudResponse(false, ERR_ALREADY_ACTIVATE);
         }
         if (activationCode == null) {
             Log.i(TAG, "activateADevice::Activation Code cannot be NULL");
-            return false;
+            return new CloudResponse(false, ERR_INVALID_ACTIVATION);
         }
         String body;
         if ((body = createBodyForDeviceActivation(activationCode)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating put for device activation
-        HttpPutTask activateDevice = new HttpPutTask(new HttpTaskHandler() {
+        HttpPutTask activateDevice = new HttpPutTask();
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
             @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
+            public void readResponse(CloudResponse response) {
                 try {
-                    DeviceToken.parseAndStoreDeviceToken(response);
+                    DeviceToken.parseAndStoreDeviceToken(response.getResponse());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                statusHandler.readResponse(responseCode, response);
             }
-        });
+        };
+
         activateDevice.setHeaders(basicHeaderList);
         activateDevice.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.activateDevice, null);
-        return super.invokeHttpExecuteOnURL(url, activateDevice, "activate a device");
+        return super.invokeHttpExecuteOnURL(url, activateDevice, preProcessing);
     }
 
     /**
      * Get a list of all devices's attribute for the specified account.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getAllAttributes() {
+    public CloudResponse getAllAttributes() {
         //initiating get for all attributes
-        HttpGetTask listAttributes = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask listAttributes = new HttpGetTask();
         listAttributes.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.listAllAttributes, null);
-        return super.invokeHttpExecuteOnURL(url, listAttributes, "list all attributes");
+        return super.invokeHttpExecuteOnURL(url, listAttributes);
     }
 
     /**
      * Get a list of all tags from devices for the specified account.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getAllTags() {
+    public CloudResponse getAllTags() {
         //initiating get for all tags
-        HttpGetTask listTags = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask listTags = new HttpGetTask();
         listTags.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.listAllTags, null);
-        return super.invokeHttpExecuteOnURL(url, listTags, "list all Tags");
+        return super.invokeHttpExecuteOnURL(url, listTags);
     }
 
     //method to handle http body formation for updating or creating device
@@ -407,7 +377,7 @@ public class DeviceManagement extends ParentModule {
     private String createBodyForDeviceCreation(Device objDevice) throws JSONException {
         JSONObject newDeviceJson = new JSONObject();
         if (objDevice.getDeviceId() == null) {
-            Log.d(TAG, "Device Id cannot be empty");
+            Log.d(TAG, ERR_INVALID_DEVICE_ID);
             return null;
         }
         newDeviceJson.put("deviceId", objDevice.getDeviceId());

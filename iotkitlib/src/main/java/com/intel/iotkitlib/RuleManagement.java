@@ -24,6 +24,7 @@ package com.intel.iotkitlib;
 
 import android.util.Log;
 
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpDeleteTask;
 import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
@@ -46,6 +47,13 @@ import java.util.LinkedHashMap;
 public class RuleManagement extends ParentModule {
     private final static String TAG = "RuleManagement";
 
+    // Errors
+    public final static String ERR_INVALID_ID =  "rule id cannot be null";
+    public final static String ERR_INVALID_STATUS = "status cannot be null";
+    public final static String ERR_INVALID_BODY = "Invalid body for rule";
+    public final static String ERR_INVALID_NAME = "rule name cannot be null";
+    public final static String ERR_INVALID_RULE = "Invalid rule object";
+
     /**
      * Module that manages rules. manage Rules. A rule is an association between one or more
      * device's components, a set of conditions for those components, and a number of actions
@@ -62,76 +70,61 @@ public class RuleManagement extends ParentModule {
 
     /**
      * Get a list of all rules for the specified account.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getListOfRules() {
+    public CloudResponse getListOfRules() {
         //initiating get for list of rules
-        HttpGetTask listOfRules = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask listOfRules = new HttpGetTask();
         listOfRules.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.getListOfRules, null);
-        return super.invokeHttpExecuteOnURL(url, listOfRules, "list of rules");
+        return super.invokeHttpExecuteOnURL(url, listOfRules);
     }
 
     /**
      * Get specific rule details for the account
      * @param ruleId the identifier for the rule to retrieve info for.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getInformationOnRule(String ruleId) {
+    public CloudResponse getInformationOnRule(String ruleId) {
         if (ruleId == null) {
-            Log.d(TAG, "rule id cannot be null");
-            return false;
+            Log.d(TAG, ERR_INVALID_ID);
+            return new CloudResponse(false, ERR_INVALID_ID);
         }
         //initiating get for rule info
-        HttpGetTask infoOnRule = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask infoOnRule = new HttpGetTask();
         infoOnRule.setHeaders(basicHeaderList);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("rule_id", ruleId);
         String url = objIotKit.prepareUrl(objIotKit.getInfoOfRule, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, infoOnRule, "info on one rule");
+        return super.invokeHttpExecuteOnURL(url, infoOnRule);
     }
 
     /**
      * Delete a specific draft rule for account.
      * @param ruleId the identifier for the rule to delete.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean deleteADraftRule(String ruleId) {
+    public CloudResponse deleteADraftRule(String ruleId) {
         if (ruleId == null) {
-            Log.d(TAG, "rule id cannot be null");
-            return false;
+            Log.d(TAG, ERR_INVALID_ID);
+            return new CloudResponse(false, ERR_INVALID_ID);
         }
         //initiating delete for draft rule
-        HttpDeleteTask deleteDraftRule = new HttpDeleteTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpDeleteTask deleteDraftRule = new HttpDeleteTask();
         deleteDraftRule.setHeaders(basicHeaderList);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("rule_id", ruleId);
         String url = objIotKit.prepareUrl(objIotKit.deleteDraftRule, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, deleteDraftRule, "delete draft rule");
+        return super.invokeHttpExecuteOnURL(url, deleteDraftRule);
     }
 
     /**
@@ -139,130 +132,114 @@ public class RuleManagement extends ParentModule {
      * Status value should be one of the following: ["Active", "Archived", "On-hold"]
      * @param ruleId the identifier for the rule to have the status updated.
      * @param status value should be one of the following: ["Active", "Archived", "On-hold"]
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean updateStatusOfRule(String ruleId, String status) throws JSONException {
-        if (ruleId == null || status == null) {
-            Log.d(TAG, "rule id or status cannot be null");
-            return false;
+    public CloudResponse updateStatusOfRule(String ruleId, String status) throws JSONException {
+        if (ruleId == null) {
+            Log.d(TAG, ERR_INVALID_ID);
+            return new CloudResponse(false, ERR_INVALID_ID);
+        }
+        if (status == null) {
+            Log.d(TAG, ERR_INVALID_STATUS);
+            return new CloudResponse(false, ERR_INVALID_STATUS);
         }
         String body;
         if ((body = createBodyForUpdateOfRuleStatus(status)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating put for rule status update
-        HttpPutTask createInvitation = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask createInvitation = new HttpPutTask();
         createInvitation.setHeaders(basicHeaderList);
         createInvitation.setRequestBody(body);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("rule_id", ruleId);
         String url = objIotKit.prepareUrl(objIotKit.updateStatusOfRule, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, createInvitation, "update status of rule");
+        return super.invokeHttpExecuteOnURL(url, createInvitation);
     }
 
     /**
      * Create a rule with a status - "Draft" for the specified account.
      * @param ruleName the name of the rule to create a draft
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean createRuleAsDraft(String ruleName) throws JSONException {
+    public CloudResponse createRuleAsDraft(String ruleName) throws JSONException {
         if (ruleName == null) {
-            Log.d(TAG, "rule name cannot be null");
-            return false;
+            Log.d(TAG, ERR_INVALID_NAME);
+            return new CloudResponse(false, ERR_INVALID_NAME);
         }
         String body;
         if ((body = createBodyForDraftRuleCreation(ruleName)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating put for draft rule creation
-        HttpPutTask createDraftRule = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask createDraftRule = new HttpPutTask();
         createDraftRule.setHeaders(basicHeaderList);
         createDraftRule.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.createRuleAsDraft, null);
-        return super.invokeHttpExecuteOnURL(url, createDraftRule, "create draft rule");
+        return super.invokeHttpExecuteOnURL(url, createDraftRule);
     }
 
     /**
      * Update the rule.
      * @param updateRuleObj the information that is used to update the rule with.
      * @param ruleId the identifier for the rule to be updated.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}.
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean updateARule(Rule updateRuleObj, String ruleId) throws JSONException {
+    public CloudResponse updateARule(Rule updateRuleObj, String ruleId) throws JSONException {
         if (updateRuleObj == null) {
-            Log.d(TAG, "rule Object cannot be null");
-            return false;
+            Log.d(TAG, ERR_INVALID_RULE);
+            return new CloudResponse(false, ERR_INVALID_RULE);
         }
         String body;
         if ((body = createBodyForRuleCreation(updateRuleObj)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating put for rule updation
-        HttpPutTask updateRule = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask updateRule = new HttpPutTask();
         updateRule.setHeaders(basicHeaderList);
         updateRule.setRequestBody(body);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("rule_id", ruleId);
         String url = objIotKit.prepareUrl(objIotKit.updateRule, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, updateRule, "update a rule");
+        return super.invokeHttpExecuteOnURL(url, updateRule);
     }
 
     /**
      * Create a rule.
      * @param ruleObj the information needed to create a new rule with.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}.
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean createARule(Rule ruleObj) throws JSONException {
+    public CloudResponse createARule(Rule ruleObj) throws JSONException {
         if (ruleObj == null) {
-            Log.d(TAG, "rule Object cannot be null");
-            return false;
+            Log.d(TAG, ERR_INVALID_RULE);
+            return new CloudResponse(false, ERR_INVALID_RULE);
         }
         String body;
         if ((body = createBodyForRuleCreation(ruleObj)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating post for rule creation
-        HttpPostTask createRule = new HttpPostTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPostTask createRule = new HttpPostTask();
         createRule.setHeaders(basicHeaderList);
         createRule.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.createRule, null);
-        return super.invokeHttpExecuteOnURL(url, createRule, "create a rule");
+        return super.invokeHttpExecuteOnURL(url, createRule);
     }
 
     private String createBodyForRuleCreation(Rule ruleObj) throws JSONException {

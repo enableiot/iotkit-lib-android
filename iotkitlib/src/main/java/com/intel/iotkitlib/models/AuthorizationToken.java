@@ -26,6 +26,7 @@ import android.util.Log;
 
 import com.intel.iotkitlib.Authorization;
 import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.utils.Utilities;
 
 import org.json.JSONArray;
@@ -48,14 +49,14 @@ public class AuthorizationToken {
         //checks the validity of token
         Authorization authorization = new Authorization(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
+            public void readResponse(CloudResponse response) {
                 try {
-                    if (responseCode != 200) {
+                    if (response.getCode() != 200) {
                         Log.w(TAG, "invalid token or responseCode");
                         return;
                     }
                     //store token associated details to shared prefs
-                    storeTokenInfo(response);
+                    storeTokenInfo(response.getResponse());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

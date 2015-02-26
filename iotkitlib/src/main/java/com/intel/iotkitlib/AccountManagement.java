@@ -24,10 +24,12 @@ package com.intel.iotkitlib;
 
 import android.util.Log;
 
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpDeleteTask;
 import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpPutTask;
+import com.intel.iotkitlib.http.HttpTask;
 import com.intel.iotkitlib.http.HttpTaskHandler;
 import com.intel.iotkitlib.models.AuthorizationToken;
 import com.intel.iotkitlib.utils.Utilities;
@@ -44,6 +46,11 @@ public class AccountManagement extends ParentModule {
 
     private static final String TAG = "AccountManagement";
 
+    // Errors
+    public static final String ERR_ACCOUNT_NAME = "account Name cannot be empty";
+    public static final String ERR_INVALID_IDS = "userId or accountId of new user cannot be null";
+    public static final String ERR_INVALID_BODY = "problem with Http body creation to add user to account";
+
     /**
      * Module that handles accounts and user related operations.
      *
@@ -59,112 +66,99 @@ public class AccountManagement extends ParentModule {
     /**
      * Create an account with a name.
      * @param accountName name of the account to be created.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean createAnAccount(String accountName) {
+    public CloudResponse createAnAccount(String accountName) {
         if (accountName == null) {
-            Log.d(TAG, "account Name cannot be empty");
-            return false;
+            Log.d(TAG, ERR_ACCOUNT_NAME);
+            return new CloudResponse(false, ERR_ACCOUNT_NAME);
         }
         String body = "{\"name\":" + "\"" + accountName + "\"" + "}";
         //initiating post for authorization
-        HttpPostTask createAnAccount = new HttpPostTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                try {
-                    AuthorizationToken.parseAndStoreAccountIdAndName(response);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPostTask createAnAccount = new HttpPostTask();
+
         createAnAccount.setHeaders(basicHeaderList);
         createAnAccount.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.createAnAccount, null);
-        return super.invokeHttpExecuteOnURL(url, createAnAccount, "create account");
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
+            @Override
+            public void readResponse(CloudResponse response) {
+                Log.d(TAG, String.valueOf(response.getCode()));
+                Log.d(TAG, response.getResponse());
+                try {
+                    // Store account and id in preferences
+                    AuthorizationToken.parseAndStoreAccountIdAndName(response.getResponse());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        return super.invokeHttpExecuteOnURL(url, createAnAccount, preProcessing);
     }
 
     /**
      * Get the information about an account.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getAccountInformation() {
+    public CloudResponse getAccountInformation() {
         //initiating get for account info
-        HttpGetTask getAccountInfo = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask getAccountInfo = new HttpGetTask();
         getAccountInfo.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.getAccountInfo, null);
-        return super.invokeHttpExecuteOnURL(url, getAccountInfo, "get account info");
+        return super.invokeHttpExecuteOnURL(url, getAccountInfo);
     }
 
     /**
      * Get the account activation code which is the transient code that can be used to activate
      * devices for the account. It expires after one hour.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getAccountActivationCode() {
+    public CloudResponse getAccountActivationCode() {
         //initiating get for account activation code
-        HttpGetTask getAccountActivationCode = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask getAccountActivationCode = new HttpGetTask();
         getAccountActivationCode.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.getActivationCode, null);
-        return super.invokeHttpExecuteOnURL(url, getAccountActivationCode, "get account activation code");
+        return super.invokeHttpExecuteOnURL(url, getAccountActivationCode);
     }
 
     /**
      * Force a renewal of the account activation code.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean renewAccountActivationCode() {
+    public CloudResponse renewAccountActivationCode() {
     //initiating put for account activation code
-        HttpPutTask renewActivationCode = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask renewActivationCode = new HttpPutTask();
         renewActivationCode.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.renewActivationCode, null);
-        return super.invokeHttpExecuteOnURL(url, renewActivationCode, "renew activation code");
+        return super.invokeHttpExecuteOnURL(url, renewActivationCode);
     }
 
     /* TODO: Fix update account */
-    public boolean updateAnAccount(final String accountNameToUpdate) {
+    public CloudResponse updateAnAccount(final String accountNameToUpdate) {
         //initiating put for update of account
-        HttpPutTask updateAccount = new HttpPutTask(new HttpTaskHandler() {
+        HttpPutTask updateAccount = new HttpPutTask();
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
             @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
+            public void readResponse(CloudResponse response) {
                 try {
-                    AuthorizationToken.parseAndStoreAccountName(accountNameToUpdate, responseCode);
+                    AuthorizationToken.parseAndStoreAccountName(accountNameToUpdate, response.getCode());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-        });
+        };
         updateAccount.setHeaders(basicHeaderList);
         //populating the JSON body of account updation
         String body = null;
@@ -177,27 +171,22 @@ public class AccountManagement extends ParentModule {
             updateAccount.setRequestBody(body);
         }
         String url = objIotKit.prepareUrl(objIotKit.updateAccount, null);
-        return super.invokeHttpExecuteOnURL(url, updateAccount, "update account");
+        return super.invokeHttpExecuteOnURL(url, updateAccount, preProcessing);
     }
 
     /**
      * Delete the current account.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean deleteAnAccount() {
+    public CloudResponse deleteAnAccount() {
         //initiating Delete of an account
-        HttpDeleteTask deleteAccount = new HttpDeleteTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpDeleteTask deleteAccount = new HttpDeleteTask();
         deleteAccount.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.deleteAccount, null);
-        return super.invokeHttpExecuteOnURL(url, deleteAccount, "delete account");
+        return super.invokeHttpExecuteOnURL(url, deleteAccount);
     }
 
     /* TODO: Add change user privileges */
@@ -207,30 +196,25 @@ public class AccountManagement extends ParentModule {
      * @param accountId The account id of the other user.
      * @param inviteeUserId The user id of the other user.
      * @param isAdmin The role for this user in the current account.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean addAnotherUserToYourAccount(String accountId, String inviteeUserId, Boolean isAdmin) throws JSONException {
+    public CloudResponse addAnotherUserToYourAccount(String accountId, String inviteeUserId, Boolean isAdmin) throws JSONException {
         if (accountId == null || inviteeUserId == null) {
-            Log.d(TAG, "userId or accountId of new user cannot be null");
-            return false;
+            Log.d(TAG, ERR_INVALID_IDS);
+            return new CloudResponse(false, ERR_INVALID_IDS);
         }
         //initiating put for adding another user to account
-        HttpPutTask addUser = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask addUser = new HttpPutTask();
 
         //populating the JSON body of adding user to account
-        String body = null;
+        String body;
         if ((body = createBodyForAddingUserToAccount(accountId, inviteeUserId, isAdmin)) == null) {
-            Log.d(TAG, "problem with Http body creation to add user to account");
-            return false;
+            Log.d(TAG, ERR_INVALID_BODY);
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         addUser.setHeaders(basicHeaderList);
         addUser.setRequestBody(body);
@@ -238,7 +222,7 @@ public class AccountManagement extends ParentModule {
         linkedHashMap.put("invitee_user_id", inviteeUserId);
         linkedHashMap.put("account_id", accountId);
         String url = objIotKit.prepareUrl(objIotKit.addUserToAccount, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, addUser, "add user to account");
+        return super.invokeHttpExecuteOnURL(url, addUser);
     }
 
     private String createBodyForAddingUserToAccount(String accountId, String inviteeUserId, Boolean isAdmin) throws JSONException {

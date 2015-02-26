@@ -26,6 +26,7 @@ import android.util.Log;
 
 import com.intel.iotkitlib.ParentModule;
 import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpDeleteTask;
 import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
@@ -48,6 +49,14 @@ import java.util.List;
 public class UserManagement extends ParentModule {
     private final static String TAG = "UserManagement";
 
+    // Errors
+    public final static String ERR_INVALID_ID = "invalid user id";
+    public final static String ERR_INVALID_ATTRS = "attributes cannot be empty";
+    public final static String ERR_INVALID_BODY = "invalid body";
+    public final static String ERR_INVALID_EMAIL = "emailID cannot be empty";
+    public final static String ERR_INVALID_TOKEN = "neither token nor newPassword cannot be empty";
+
+
     /**
      * User management features
      *
@@ -64,224 +73,204 @@ public class UserManagement extends ParentModule {
      * Create a new user
      * @param emailID the email id for the user which is used as an identifier
      * @param password the password for the user
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link com.intel.iotkitlib.ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean createNewUser(String emailID, String password) throws JSONException {
+    public CloudResponse createNewUser(String emailID, String password) throws JSONException {
         String body = validateAndCreateHttpBodyForNewUser(emailID, password);
         //adding header pair
         List<NameValuePair> headers = Utilities.addHttpHeaders(Utilities.createEmptyListForHeaders(),
                 IotKit.HEADER_CONTENT_TYPE_NAME, IotKit.HEADER_CONTENT_TYPE_JSON);
         //initiating post for create new user
-        HttpPostTask createUser = new HttpPostTask(new HttpTaskHandler() {
+        HttpPostTask createUser = new HttpPostTask();
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
             @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                //parse and store auth-token
+            public void readResponse(CloudResponse response) {
+                Log.d(TAG, String.valueOf(response.getCode()));
+                Log.d(TAG, response.getResponse());
                 try {
-                    AuthorizationToken.parseAndStoreUserId(response, responseCode);
-                } catch (JSONException je) {
-                    je.printStackTrace();
+                    // Store user id in preferences
+                    AuthorizationToken.parseAndStoreUserId(response.getResponse(), response.getCode());
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                statusHandler.readResponse(responseCode, response);
             }
-        });
+        };
+
         createUser.setHeaders(headers);
         createUser.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.createUser, null);
-        return super.invokeHttpExecuteOnURL(url, createUser, "new auth token");
+        return super.invokeHttpExecuteOnURL(url, createUser, preProcessing);
     }
 
     /**
      * Delete a user
      * @param userId the identifier for the user to be deleted from the cloud
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link com.intel.iotkitlib.ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean deleteAUser(String userId) {
+    public CloudResponse deleteAUser(String userId) {
         //initiating get for user deletion
-        HttpDeleteTask deleteUser = new HttpDeleteTask(new HttpTaskHandler() {
+        HttpDeleteTask deleteUser = new HttpDeleteTask();
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
             @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
+            public void readResponse(CloudResponse response) {
+                Log.d(TAG, String.valueOf(response.getCode()));
+                Log.d(TAG, response.getResponse());
                 try {
-                    AuthorizationToken.resetSharedPreferences(responseCode);
+                    AuthorizationToken.resetSharedPreferences(response.getCode());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                statusHandler.readResponse(responseCode, response);
             }
-        });
+        };
         String tempUserId = validateAndGetUserId(userId);
         if (tempUserId == null) {
-            Log.d(TAG, "userId empty");
-            return false;
+            Log.d(TAG, ERR_INVALID_ID);
+            return new CloudResponse(false, ERR_INVALID_ID);
         }
         deleteUser.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.deleteUser, createHashMapWithUserID(tempUserId));
-        return super.invokeHttpExecuteOnURL(url, deleteUser, "delete a user");
+        return super.invokeHttpExecuteOnURL(url, deleteUser, preProcessing);
     }
 
     /**
      * Get user information
      * @param userId the identifier for the user for retrieving user information for
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link com.intel.iotkitlib.ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getUserInfo(String userId) {
+    public CloudResponse getUserInfo(String userId) {
         //initiating get for user info
-        HttpGetTask getUserInfo = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask getUserInfo = new HttpGetTask();
         String tempUserId = validateAndGetUserId(userId);
         if (tempUserId == null) {
-            Log.d(TAG, "userId empty");
-            return false;
+            Log.d(TAG, ERR_INVALID_ID);
+            return new CloudResponse(false, ERR_INVALID_ID);
         }
         getUserInfo.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.getUserInfo, createHashMapWithUserID(tempUserId));
-        return super.invokeHttpExecuteOnURL(url, getUserInfo, "get user info");
+        return super.invokeHttpExecuteOnURL(url, getUserInfo);
     }
 
     /**
      * Update the user attributes for a given user
      * @param userId The identifier for the user to update the attributes for
      * @param userAttributes A list of name value pairs that specify the user attributes for the user
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link com.intel.iotkitlib.ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean updateUserAttributes(String userId, List<NameValuePair> userAttributes) throws JSONException {
+    public CloudResponse updateUserAttributes(String userId, List<NameValuePair> userAttributes) throws JSONException {
         String tempUserId = validateAndGetUserId(userId);
         if (tempUserId == null) {
-            Log.d(TAG, "userId empty");
-            return false;
+            Log.d(TAG, ERR_INVALID_ID);
+            return new CloudResponse(false, ERR_INVALID_ID);
         }
         if (userAttributes == null) {
-            Log.d(TAG, "attributes cannot be empty");
-            return false;
+            Log.d(TAG, ERR_INVALID_ATTRS);
+            return new CloudResponse(false, ERR_INVALID_ATTRS);
         }
         String body;
         if ((body = createBodyForUserAttributesUpdation(tempUserId, userAttributes)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating put for user attributes updation
-        HttpPutTask updateUserAttributes = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask updateUserAttributes = new HttpPutTask();
         updateUserAttributes.setHeaders(basicHeaderList);
         updateUserAttributes.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.updateUserAttributes, createHashMapWithUserID(tempUserId));
-        return super.invokeHttpExecuteOnURL(url, updateUserAttributes, "update user attributes");
+        return super.invokeHttpExecuteOnURL(url, updateUserAttributes);
     }
 
     /**
      * Accept the terms and conditions for an user
      * @param userId The identifier for the user that either accepts or rejects the terms and conditions
      * @param accept true for accepting or fals for rejecting the terms and conditions
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link com.intel.iotkitlib.ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean acceptTermsAndConditions(String userId, boolean accept) throws JSONException {
+    public CloudResponse acceptTermsAndConditions(String userId, boolean accept) throws JSONException {
         String tempUserId = validateAndGetUserId(userId);
         if (tempUserId == null) {
-            Log.d(TAG, "userId empty");
-            return false;
+            Log.d(TAG, ERR_INVALID_ID);
+            return new CloudResponse(false, ERR_INVALID_ID);
         }
         String body;
         if ((body = createBodyForTermsAndConditionsAcceptance(tempUserId, accept)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating put for user acceptance for terms and conditions
-        HttpPutTask acceptTermsAndConditions = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask acceptTermsAndConditions = new HttpPutTask();
         acceptTermsAndConditions.setHeaders(basicHeaderList);
         acceptTermsAndConditions.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.acceptTermsAndConditions, createHashMapWithUserID(tempUserId));
-        return super.invokeHttpExecuteOnURL(url, acceptTermsAndConditions, "terms and conditions acceptance");
+        return super.invokeHttpExecuteOnURL(url, acceptTermsAndConditions);
     }
 
     /**
      * Request for change of password
      * @param emailId The email address of the user that requests for a change of password
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link com.intel.iotkitlib.ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean requestChangePassword(String emailId) throws JSONException {
+    public CloudResponse requestChangePassword(String emailId) throws JSONException {
         if (emailId == null) {
-            Log.d(TAG, "emailID cannot be empty");
-            return false;
+            Log.d(TAG, ERR_INVALID_EMAIL);
+            return new CloudResponse(false, ERR_INVALID_EMAIL);
         }
         String body;
         if ((body = createBodyForRequestingChangePassword(emailId)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating post for change password request
-        HttpPostTask reqChangepassword = new HttpPostTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPostTask reqChangepassword = new HttpPostTask();
         reqChangepassword.setHeaders(basicHeaderList);
         reqChangepassword.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.requestChangePassword, null);
-        return super.invokeHttpExecuteOnURL(url, reqChangepassword, "request change password");
+        return super.invokeHttpExecuteOnURL(url, reqChangepassword);
     }
 
     /**
      * Update the password
      * @param token The token that is used access the cloud backend for updating the password
      * @param newPassword The new password for the user
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link com.intel.iotkitlib.ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean updateForgotPassword(String token, String newPassword) throws JSONException {
+    public CloudResponse updateForgotPassword(String token, String newPassword) throws JSONException {
         if (token == null || newPassword == null) {
-            Log.d(TAG, "neither token nor newPassword cannot be empty");
-            return false;
+            Log.d(TAG, ERR_INVALID_TOKEN);
+            return new CloudResponse(false, ERR_INVALID_TOKEN);
         }
         String body;
         if ((body = createBodyForUpdatingForgotPassword(token, newPassword)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating put for update password request
-        HttpPutTask updatePassword = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask updatePassword = new HttpPutTask();
         updatePassword.setHeaders(basicHeaderList);
         updatePassword.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.requestChangePassword, null);
-        return super.invokeHttpExecuteOnURL(url, updatePassword, "update forgotten password");
+        return super.invokeHttpExecuteOnURL(url, updatePassword);
     }
 
     /**
@@ -289,34 +278,29 @@ public class UserManagement extends ParentModule {
      * @param emailAddress The email address of the user
      * @param currentPassword The current password for the user
      * @param newPassword The new password for the user
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link com.intel.iotkitlib.ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean changePassword(String emailAddress, String currentPassword, String newPassword) throws JSONException {
+    public CloudResponse changePassword(String emailAddress, String currentPassword, String newPassword) throws JSONException {
         if (emailAddress == null || currentPassword == null || newPassword == null) {
-            Log.d(TAG, "email or currentPassword or newPassword cannot be empty");
-            return false;
+            Log.d(TAG, ERR_INVALID_EMAIL);
+            return new CloudResponse(false, ERR_INVALID_EMAIL);
         }
         String body;
         if ((body = createBodyForChangePassword(currentPassword, newPassword)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating put for change password request
-        HttpPutTask changePassword = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask changePassword = new HttpPutTask();
         changePassword.setHeaders(basicHeaderList);
         changePassword.setRequestBody(body);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("email", emailAddress);
         String url = objIotKit.prepareUrl(objIotKit.changePassword, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, changePassword, "change password");
+        return super.invokeHttpExecuteOnURL(url, changePassword);
     }
 
     private String createBodyForChangePassword(String currentPassword, String newPassword) throws JSONException {

@@ -24,6 +24,7 @@ package com.intel.iotkitlib;
 
 import android.util.Log;
 
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpDeleteTask;
 import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
@@ -40,6 +41,10 @@ import java.util.LinkedHashMap;
 public class InvitationManagement extends ParentModule {
     private final static String TAG = "InvitationManagement";
 
+    // Errors
+    public final static String ERR_INVALID_EMAIL = "emailId cannot be null";
+    public final static String ERR_INVALID_BODY = "Invalid invitation body";
+
     /**
      * Module that handles invitations. Invitation to the account can be created by the user with
      * administrator permission. After created, invitation notification will be send as an email
@@ -55,105 +60,90 @@ public class InvitationManagement extends ParentModule {
         super(requestStatusHandler);
     }
 
-    public boolean getListOfInvitation() {
+    /**
+     * Get a list of invitations send to specific user.
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
+     */
+    public CloudResponse getListOfInvitation() {
         //initiating get for invitation list
-        HttpGetTask listInvitation = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask listInvitation = new HttpGetTask();
         listInvitation.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.getInvitationList, null);
-        return super.invokeHttpExecuteOnURL(url, listInvitation, "list invitation");
+        return super.invokeHttpExecuteOnURL(url, listInvitation);
     }
 
     /**
      * Get the details about invitations send to specific user.
      * @param emailId The email that identifies the user
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getInvitationListSendToSpecificUser(String emailId) {
+    public CloudResponse getInvitationListSendToSpecificUser(String emailId) {
         if (emailId == null) {
-            Log.d(TAG, "emailId cannot be null");
-            return false;
+            Log.d(TAG, ERR_INVALID_EMAIL);
+            return new CloudResponse(false, ERR_INVALID_EMAIL);
         }
         //initiating get for invitation list send to specific user
-        HttpGetTask listInvitationToSpecificUser = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask listInvitationToSpecificUser = new HttpGetTask();
         listInvitationToSpecificUser.setHeaders(basicHeaderList);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("email", emailId);
         String url = objIotKit.prepareUrl(objIotKit.getInvitationListSendToSpecificUser, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, listInvitationToSpecificUser, "list invitation to specific user");
+        return super.invokeHttpExecuteOnURL(url, listInvitationToSpecificUser);
     }
 
     /**
      * Delete invitations to an account for a specific user
      * @param emailId identifier for the user
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean deleteInvitations(String emailId) {
+    public CloudResponse deleteInvitations(String emailId) {
         if (emailId == null) {
-            Log.d(TAG, "emailId cannot be null");
-            return false;
+            Log.d(TAG, ERR_INVALID_EMAIL);
+            return new CloudResponse(false, ERR_INVALID_EMAIL);
         }
         //initiating delete for invitation deletion
-        HttpDeleteTask deleteTheInvitations = new HttpDeleteTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpDeleteTask deleteTheInvitations = new HttpDeleteTask();
         deleteTheInvitations.setHeaders(basicHeaderList);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("email", emailId);
         String url = objIotKit.prepareUrl(objIotKit.deleteInvitations, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, deleteTheInvitations, "delete invitations");
+        return super.invokeHttpExecuteOnURL(url, deleteTheInvitations);
     }
 
     /**
      * Create an invitation to send out to the user
      * @param emailId The email of the user to be invited
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link ParentModule#statusHandler}
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean createInvitation(String emailId) throws JSONException {
+    public CloudResponse createInvitation(String emailId) throws JSONException {
         if (emailId == null) {
-            Log.d(TAG, "emailId cannot be null");
-            return false;
+            Log.d(TAG, ERR_INVALID_EMAIL);
+            return new CloudResponse(false, ERR_INVALID_EMAIL);
         }
         String body;
         if ((body = createBodyForInvitation(emailId)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating post for  invitation creation
-        HttpPostTask createInvitation = new HttpPostTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPostTask createInvitation = new HttpPostTask();
         createInvitation.setHeaders(basicHeaderList);
         createInvitation.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.createInvitation, null);
-        return super.invokeHttpExecuteOnURL(url, createInvitation, "create invitation");
+        return super.invokeHttpExecuteOnURL(url, createInvitation);
     }
 
     private String createBodyForInvitation(String emailId) throws JSONException {

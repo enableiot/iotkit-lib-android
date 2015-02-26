@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import com.intel.iotkitlib.Authorization;
 import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.utils.Utilities;
 
 import java.lang.ref.WeakReference;
@@ -69,8 +70,8 @@ public class MyActivity extends Activity {
                 Authorization getToken = new Authorization(new RequestStatusHandler() {
                     //anonymous call back
                     @Override
-                    public void readResponse(int responseCode, String response) {
-                        setResponse(responseCode, response);
+                    public void readResponse(CloudResponse response) {
+                        setResponse(response.getCode(), response.getResponse());
                     }
                 });
                 //for getting token

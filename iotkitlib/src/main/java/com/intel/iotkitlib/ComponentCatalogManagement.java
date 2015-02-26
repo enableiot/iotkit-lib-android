@@ -24,6 +24,7 @@ package com.intel.iotkitlib;
 
 import android.util.Log;
 
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpPutTask;
@@ -42,6 +43,10 @@ import java.util.LinkedHashMap;
  */
 public class ComponentCatalogManagement extends ParentModule {
     private static final String TAG = "ComponentTypesCatalog";
+
+    // Errors
+    public static final String ERR_INVALID_COMMAND = "Invalid command";
+    public static final String ERR_INVALID_BODY = "Invalid body";
 
     /**
      * The component type catalog maintains a list of capabilities that component connected to the
@@ -63,65 +68,50 @@ public class ComponentCatalogManagement extends ParentModule {
 
     /**
      * Get a list of all component types with minimal information.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean listAllComponentTypesCatalog() {
+    public CloudResponse listAllComponentTypesCatalog() {
         //initiating get for list all component types
-        HttpGetTask listAllComponents = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask listAllComponents = new HttpGetTask();
         listAllComponents.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.listAllComponentTypesCatalog, null);
-        return super.invokeHttpExecuteOnURL(url, listAllComponents, "list all component types");
+        return super.invokeHttpExecuteOnURL(url, listAllComponents);
     }
 
     /**
      * Get a list of all component types with full detailed information.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean listAllDetailsOfComponentTypesCatalog() {
+    public CloudResponse listAllDetailsOfComponentTypesCatalog() {
         //initiating get for list all component types detailed
-        HttpGetTask listAllComponentsDetails = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask listAllComponentsDetails = new HttpGetTask();
         listAllComponentsDetails.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.listAllComponentTypesCatalogDetailed, null);
-        return super.invokeHttpExecuteOnURL(url, listAllComponentsDetails, "list all component types detailed");
+        return super.invokeHttpExecuteOnURL(url, listAllComponentsDetails);
     }
 
     /**
      * Get a complete description of a component type for a specific component.
      * @param componentId the identifier for the component to get information for.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean listComponentTypeDetails(String componentId) {
+    public CloudResponse listComponentTypeDetails(String componentId) {
         //initiating get for component type details
-        HttpGetTask componentTypeDetails = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask componentTypeDetails = new HttpGetTask();
         componentTypeDetails.setHeaders(basicHeaderList);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("cmp_catalog_id", componentId);
         String url = objIotKit.prepareUrl(objIotKit.componentTypeCatalogDetails, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, componentTypeDetails, "component type details");
+        return super.invokeHttpExecuteOnURL(url, componentTypeDetails);
     }
 
     /**
@@ -129,31 +119,26 @@ public class ComponentCatalogManagement extends ParentModule {
      * if the component exists. If not, a new component is created which auto-generated id results
      * the concatenation of dimension and version values.
      * @param componentCatalog the component type to be added to the catalog
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean createCustomComponent(ComponentCatalog componentCatalog) throws JSONException {
+    public CloudResponse createCustomComponent(ComponentCatalog componentCatalog) throws JSONException {
         if (!validateActuatorCommand(componentCatalog)) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_COMMAND);
         }
         String body;
         if ((body = createBodyForComponentCreation(componentCatalog)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating post for component creation
-        HttpPostTask createNewComponent = new HttpPostTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPostTask createNewComponent = new HttpPostTask();
         createNewComponent.setHeaders(basicHeaderList);
         createNewComponent.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.createCustomComponent, null);
-        return super.invokeHttpExecuteOnURL(url, createNewComponent, "create new custom component");
+        return super.invokeHttpExecuteOnURL(url, createNewComponent);
     }
 
     /**
@@ -162,33 +147,28 @@ public class ComponentCatalogManagement extends ParentModule {
      * version info (version attribute) is incremented by 1.
      * @param componentCatalog the component type to be updated in the catalog.
      * @param componentId the identifier for the component to be updated.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean updateAComponent(ComponentCatalog componentCatalog, String componentId) throws JSONException {
+    public CloudResponse updateAComponent(ComponentCatalog componentCatalog, String componentId) throws JSONException {
         if (!validateActuatorCommand(componentCatalog)) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_COMMAND);
         }
         String body;
         if ((body = createBodyForComponentUpdate(componentCatalog)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating put for component updation
-        HttpPutTask updateComponent = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask updateComponent = new HttpPutTask();
         updateComponent.setHeaders(basicHeaderList);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("cmp_catalog_id", componentId);
         updateComponent.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.updateComponent, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, updateComponent, "update component");
+        return super.invokeHttpExecuteOnURL(url, updateComponent);
     }
 
     private boolean validateActuatorCommand(ComponentCatalog componentCatalog) {

@@ -24,6 +24,7 @@ package com.intel.iotkitlib;
 
 import android.util.Log;
 
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpPutTask;
@@ -42,6 +43,10 @@ import java.util.LinkedHashMap;
 public class AlertManagement extends ParentModule {
     private final static String TAG = "AlertManagement";
 
+    // Errors
+    public final static String ERR_INVALID_ID = "alert id cannot be null";
+    public final static String ERR_INVALID_BODY = "alert body cannot be null";
+
     /**
      * The interface for handling alerts.
      *
@@ -56,76 +61,61 @@ public class AlertManagement extends ParentModule {
 
     /**
      * Get a list of all alerts for the specified account.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from.
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getListOfAlerts() {
+    public CloudResponse getListOfAlerts() {
         //initiating get for list of alerts
-        HttpGetTask listOfAlerts = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask listOfAlerts = new HttpGetTask();
         listOfAlerts.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.getListOfAlerts, null);
-        return super.invokeHttpExecuteOnURL(url, listOfAlerts, "list of alerts");
+        return super.invokeHttpExecuteOnURL(url, listOfAlerts);
     }
 
     /**
      * Get specific alert details connected with the account.
      * @param alertId the identifier for the alert to retrieve details.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from.
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean getInfoOnAlert(String alertId) {
+    public CloudResponse getInfoOnAlert(String alertId) {
         if (alertId == null) {
-            Log.d(TAG, "alert id cannot be null");
-            return false;
+            Log.d(TAG, ERR_INVALID_ID);
+            return new CloudResponse(false, ERR_INVALID_ID);
         }
         //initiating get for alert info
-        HttpGetTask infoOnAlert = new HttpGetTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpGetTask infoOnAlert = new HttpGetTask();
         infoOnAlert.setHeaders(basicHeaderList);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("alert_id", alertId);
         String url = objIotKit.prepareUrl(objIotKit.getAlertInformation, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, infoOnAlert, "info on one rule");
+        return super.invokeHttpExecuteOnURL(url, infoOnAlert);
     }
 
     /**
      * Change the alert status to "Closed". Alert won't be active any more.
      * @param alertId the identifier for the alert to reset.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean resetAlert(String alertId) {
+    public CloudResponse resetAlert(String alertId) {
         if (alertId == null) {
-            Log.d(TAG, "alert id cannot be null");
-            return false;
+            Log.d(TAG, ERR_INVALID_ID);
+            return new CloudResponse(false, ERR_INVALID_ID);
         }
         //initiating put for resetting alert
-        HttpPutTask alertReset = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask alertReset = new HttpPutTask();
         alertReset.setHeaders(basicHeaderList);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("alert_id", alertId);
         String url = objIotKit.prepareUrl(objIotKit.resetAlert, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, alertReset, "alert reset");
+        return super.invokeHttpExecuteOnURL(url, alertReset);
     }
 
     /**
@@ -133,28 +123,23 @@ public class AlertManagement extends ParentModule {
      * @param alertId the identifier for the alert to change the status on.
      * @param status the status to change to. The value should be one of the following values:
      *               ['New', 'Open', 'Closed'].
-     * @return
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
+     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public boolean updateAlertStatus(String alertId, String status) {
+    public CloudResponse updateAlertStatus(String alertId, String status) {
         if (alertId == null || status == null) {
-            Log.d(TAG, "alert id or status cannot be null");
-            return false;
+            return new CloudResponse(false, ERR_INVALID_ID);
         }
         //initiating put for updating alert status
-        HttpPutTask updateAlertStatus = new HttpPutTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPutTask updateAlertStatus = new HttpPutTask();
         updateAlertStatus.setHeaders(basicHeaderList);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("alert_id", alertId);
         linkedHashMap.put("status_name", status);
         String url = objIotKit.prepareUrl(objIotKit.resetAlert, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, updateAlertStatus, "alert status update");
+        return super.invokeHttpExecuteOnURL(url, updateAlertStatus);
     }
 
     /**
@@ -163,34 +148,29 @@ public class AlertManagement extends ParentModule {
      * @param user the user that made the comment.
      * @param timeStamp the timestamp when the comment was made.
      * @param comment the comment text.
-     * @return true if the request of REST call is valid; otherwise false. The actual result from
+     * @return For async model, return CloudResponse which wraps true if the request of REST
+     * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
+     * For synch model, return CloudResponse which wraps HTTP return code and response.
      * @throws JSONException
      */
-    public boolean addCommentsToTheAlert(String alertId, String user, Long timeStamp, String comment) throws JSONException {
+    public CloudResponse addCommentsToTheAlert(String alertId, String user, Long timeStamp, String comment) throws JSONException {
         if (alertId == null || user == null || comment == null) {
-            Log.d(TAG, "alert id or user or comment cannot be null");
-            return false;
+            Log.d(TAG, ERR_INVALID_ID);
+            return new CloudResponse(false, ERR_INVALID_ID);
         }
         String body;
         if ((body = createBodyForAddingCommentToAlert(user, timeStamp, comment)) == null) {
-            return false;
+            return new CloudResponse(false, ERR_INVALID_BODY);
         }
         //initiating post for adding comment to alert
-        HttpPostTask addCommentsTOAlert = new HttpPostTask(new HttpTaskHandler() {
-            @Override
-            public void taskResponse(int responseCode, String response) {
-                Log.d(TAG, String.valueOf(responseCode));
-                Log.d(TAG, response);
-                statusHandler.readResponse(responseCode, response);
-            }
-        });
+        HttpPostTask addCommentsTOAlert = new HttpPostTask();
         addCommentsTOAlert.setHeaders(basicHeaderList);
         addCommentsTOAlert.setRequestBody(body);
         LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
         linkedHashMap.put("alert_id", alertId);
         String url = objIotKit.prepareUrl(objIotKit.addCommentToAlert, linkedHashMap);
-        return super.invokeHttpExecuteOnURL(url, addCommentsTOAlert, "add comments to alert");
+        return super.invokeHttpExecuteOnURL(url, addCommentsTOAlert);
     }
 
     private String createBodyForAddingCommentToAlert(String user, Long timeStamp, String comment) throws JSONException {
