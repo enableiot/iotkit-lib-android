@@ -47,6 +47,11 @@ public class CloudResponse {
     }
 
     public int getCode() { return code; }
-    public String getResponse() { return response; }
+
+    public String getResponse() {
+        if (response == null) response = "";
+        return response;
+    }
+
     public boolean getStatus() { return status; }
 }
