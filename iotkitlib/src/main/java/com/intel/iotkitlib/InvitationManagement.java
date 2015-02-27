@@ -49,6 +49,14 @@ public class InvitationManagement extends ParentModule {
      * Module that handles invitations. Invitation to the account can be created by the user with
      * administrator permission. After created, invitation notification will be send as an email
      * message to the specific email account. Invited user has to login into IoT dashboard and
+     * the accept/decline received invitation. Use this to do sync operation.
+     */
+    public InvitationManagement() { super(null); }
+
+    /**
+     * Module that handles invitations. Invitation to the account can be created by the user with
+     * administrator permission. After created, invitation notification will be send as an email
+     * message to the specific email account. Invited user has to login into IoT dashboard and
      * the accept/decline received invitation.
      *
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Invitation-Management}

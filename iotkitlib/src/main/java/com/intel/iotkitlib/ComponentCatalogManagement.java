@@ -52,6 +52,14 @@ public class ComponentCatalogManagement extends ParentModule {
      * The component type catalog maintains a list of capabilities that component connected to the
      * enableiot cloud expose. There are two main types of components which are sensor and actutator.
      * The catalog comes with default (built-in @link{https://github.com/enableiot/iotkit-api/wiki/Component%20Types%20List})
+     * component types which are available to all accounts. Use this to do sync operation.
+     */
+    public ComponentCatalogManagement() { super(null); }
+
+    /**
+     * The component type catalog maintains a list of capabilities that component connected to the
+     * enableiot cloud expose. There are two main types of components which are sensor and actutator.
+     * The catalog comes with default (built-in @link{https://github.com/enableiot/iotkit-api/wiki/Component%20Types%20List})
      * component types which are available to all accounts.
      *
      * A Component-Type ID, which is account-level unique is a concatenation of its dimension and

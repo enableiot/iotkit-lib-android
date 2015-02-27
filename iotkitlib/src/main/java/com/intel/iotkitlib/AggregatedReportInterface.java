@@ -62,6 +62,11 @@ public class AggregatedReportInterface extends ParentModule {
     List<AttributeFilter> filters;
 
     /**
+     * Interface for query aggregated metrics data in a single account; use this to do sync operation
+     */
+    public AggregatedReportInterface() { super(null); }
+
+    /**
      * Interface for query aggregated metrics data in a single account.
      *
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Aggregated-Report-Interface}

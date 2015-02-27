@@ -56,6 +56,10 @@ public class UserManagement extends ParentModule {
     public final static String ERR_INVALID_EMAIL = "emailID cannot be empty";
     public final static String ERR_INVALID_TOKEN = "neither token nor newPassword cannot be empty";
 
+    /**
+     * User management features; use this to do sync operation.
+     */
+    public UserManagement() { super(null); }
 
     /**
      * User management features

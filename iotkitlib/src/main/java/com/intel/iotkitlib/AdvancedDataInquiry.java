@@ -69,6 +69,12 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Advanced Data Inquiry allows querying measurement data (values, location and attributes) for
+     * a single account using advanced filtering and sorting; use this to do sync operation
+     */
+    public AdvancedDataInquiry() { super(null); }
+
+    /**
+     * Advanced Data Inquiry allows querying measurement data (values, location and attributes) for
      * a single account using advanced filtering and sorting.
      *
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Advanced-Data-Inquiry}

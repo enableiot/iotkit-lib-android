@@ -58,6 +58,12 @@ public class DeviceManagement extends ParentModule {
 
     /**
      *
+     * Management of devices; use this to do sync operation
+     */
+    public DeviceManagement() { super(null); }
+
+    /**
+     *
      * Management of devices
      *
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Device-Management}

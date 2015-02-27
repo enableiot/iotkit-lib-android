@@ -48,6 +48,11 @@ public class AlertManagement extends ParentModule {
     public final static String ERR_INVALID_BODY = "alert body cannot be null";
 
     /**
+     * The interface for handling alerts; use this to do sync operation
+     */
+    public AlertManagement() { super(null); }
+
+    /**
      * The interface for handling alerts.
      *
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Alert-Management}

@@ -52,6 +52,11 @@ public class AccountManagement extends ParentModule {
     public static final String ERR_INVALID_BODY = "problem with Http body creation to add user to account";
 
     /**
+     * Module that handles accounts and user related operations; use this to do sync operation
+     */
+    public AccountManagement() { super(null); }
+
+    /**
      * Module that handles accounts and user related operations.
      *
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Account-Management}

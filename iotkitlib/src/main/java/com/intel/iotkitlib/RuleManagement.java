@@ -57,6 +57,13 @@ public class RuleManagement extends ParentModule {
     /**
      * Module that manages rules. manage Rules. A rule is an association between one or more
      * device's components, a set of conditions for those components, and a number of actions
+     * that have to be triggered in case those conditions are met. Use this to do sync operation.
+     */
+    public RuleManagement() { super(null); }
+
+    /**
+     * Module that manages rules. manage Rules. A rule is an association between one or more
+     * device's components, a set of conditions for those components, and a number of actions
      * that have to be triggered in case those conditions are met.
      *
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Rule-Management}

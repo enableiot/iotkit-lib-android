@@ -49,6 +49,11 @@ public class Authorization extends ParentModule {
     public static final String ERR_INVALID_BEARER = "bearer token cannot be empty";
 
     /**
+     * Module that handles authorization of user; use this to do sync operation.
+     */
+    public Authorization() { super(null); }
+
+    /**
      * Module that handles authorization of user.
      *
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Authorization}
