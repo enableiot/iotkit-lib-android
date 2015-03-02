@@ -24,14 +24,11 @@ package com.intel.iotkitlib;
 
 import android.util.Log;
 
-import com.intel.iotkitlib.ParentModule;
-import com.intel.iotkitlib.RequestStatusHandler;
 import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpDeleteTask;
 import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpPutTask;
-import com.intel.iotkitlib.http.HttpTaskHandler;
 import com.intel.iotkitlib.models.AuthorizationToken;
 import com.intel.iotkitlib.utils.IotKit;
 import com.intel.iotkitlib.utils.Utilities;
@@ -47,23 +44,24 @@ import java.util.List;
  * User management module
  */
 public class UserManagement extends ParentModule {
-    private final static String TAG = "UserManagement";
-
     // Errors
     public final static String ERR_INVALID_ID = "invalid user id";
     public final static String ERR_INVALID_ATTRS = "attributes cannot be empty";
     public final static String ERR_INVALID_BODY = "invalid body";
     public final static String ERR_INVALID_EMAIL = "emailID cannot be empty";
     public final static String ERR_INVALID_TOKEN = "neither token nor newPassword cannot be empty";
+    private final static String TAG = "UserManagement";
 
     /**
      * User management features; use this to do sync operation.
      */
-    public UserManagement() { super(null); }
+    public UserManagement() {
+        super(null);
+    }
 
     /**
      * User management features
-     *
+     * <p/>
      * For more info, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/User-Management}
      *
      * @param requestStatusHandler The handler for asynchronously request to return data and status
@@ -75,7 +73,8 @@ public class UserManagement extends ParentModule {
 
     /**
      * Create a new user
-     * @param emailID the email id for the user which is used as an identifier
+     *
+     * @param emailID  the email id for the user which is used as an identifier
      * @param password the password for the user
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
@@ -112,6 +111,7 @@ public class UserManagement extends ParentModule {
 
     /**
      * Delete a user
+     *
      * @param userId the identifier for the user to be deleted from the cloud
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
@@ -145,6 +145,7 @@ public class UserManagement extends ParentModule {
 
     /**
      * Get user information
+     *
      * @param userId the identifier for the user for retrieving user information for
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
@@ -166,7 +167,8 @@ public class UserManagement extends ParentModule {
 
     /**
      * Update the user attributes for a given user
-     * @param userId The identifier for the user to update the attributes for
+     *
+     * @param userId         The identifier for the user to update the attributes for
      * @param userAttributes A list of name value pairs that specify the user attributes for the user
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
@@ -197,35 +199,8 @@ public class UserManagement extends ParentModule {
     }
 
     /**
-     * Accept the terms and conditions for an user
-     * @param userId The identifier for the user that either accepts or rejects the terms and conditions
-     * @param accept true for accepting or fals for rejecting the terms and conditions
-     * @return For async model, return CloudResponse which wraps true if the request of REST
-     * call is valid; otherwise false. The actual result from
-     * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
-     * For synch model, return CloudResponse which wraps HTTP return code and response.
-     * @throws JSONException
-     */
-    public CloudResponse acceptTermsAndConditions(String userId, boolean accept) throws JSONException {
-        String tempUserId = validateAndGetUserId(userId);
-        if (tempUserId == null) {
-            Log.d(TAG, ERR_INVALID_ID);
-            return new CloudResponse(false, ERR_INVALID_ID);
-        }
-        String body;
-        if ((body = createBodyForTermsAndConditionsAcceptance(tempUserId, accept)) == null) {
-            return new CloudResponse(false, ERR_INVALID_BODY);
-        }
-        //initiating put for user acceptance for terms and conditions
-        HttpPutTask acceptTermsAndConditions = new HttpPutTask();
-        acceptTermsAndConditions.setHeaders(basicHeaderList);
-        acceptTermsAndConditions.setRequestBody(body);
-        String url = objIotKit.prepareUrl(objIotKit.acceptTermsAndConditions, createHashMapWithUserID(tempUserId));
-        return super.invokeHttpExecuteOnURL(url, acceptTermsAndConditions);
-    }
-
-    /**
      * Request for change of password
+     *
      * @param emailId The email address of the user that requests for a change of password
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
@@ -252,7 +227,8 @@ public class UserManagement extends ParentModule {
 
     /**
      * Update the password
-     * @param token The token that is used access the cloud backend for updating the password
+     *
+     * @param token       The token that is used access the cloud backend for updating the password
      * @param newPassword The new password for the user
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
@@ -279,9 +255,10 @@ public class UserManagement extends ParentModule {
 
     /**
      * Change the password for the user
-     * @param emailAddress The email address of the user
+     *
+     * @param emailAddress    The email address of the user
      * @param currentPassword The current password for the user
-     * @param newPassword The new password for the user
+     * @param newPassword     The new password for the user
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
@@ -380,6 +357,7 @@ public class UserManagement extends ParentModule {
         JSONObject createUserJson = new JSONObject();
         createUserJson.put("email", emailID);
         createUserJson.put("password", password);
+        createUserJson.put("termsAndConditions", true);//accept terms and conditions
         return createUserJson.toString();
     }
 }

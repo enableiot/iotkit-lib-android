@@ -24,6 +24,7 @@ package com.intel.iotkit;
 
 import com.intel.iotkitlib.InvitationManagement;
 import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.http.CloudResponse;
 
 import org.json.JSONException;
 
@@ -42,57 +43,57 @@ public class InvitationManagementTest extends ApplicationTest {
     public void testCreateInvitation() throws JSONException {
         InvitationManagement invitationManagement = new InvitationManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(201, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(201, response.getCode());
                 serverResponse = true;
             }
 
         });
-
-        assertEquals(true, invitationManagement.createInvitation("intel.aricent.iot3@gmail.com"));
+        CloudResponse response = invitationManagement.createInvitation("intel.aricent.iot1@gmail.com");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(invitationManagement);
     }
 
     public void testGetInvitationListSendToSpecificUser() throws JSONException {
         InvitationManagement invitationManagement = new InvitationManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
 
         });
-
-        assertEquals(true, invitationManagement.getInvitationListSendToSpecificUser(
-                "intel.aricent.iot3@gmail.com"));
+        CloudResponse response = invitationManagement.getInvitationListSendToSpecificUser(
+                "intel.aricent.iot1@gmail.com");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(invitationManagement);
     }
 
     public void testGetListOfInvitation() {
         InvitationManagement invitationManagement = new InvitationManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
 
         });
-
-        assertEquals(true, invitationManagement.getListOfInvitation());
+        CloudResponse response = invitationManagement.getListOfInvitation();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(invitationManagement);
     }
 
     public void testDeleteInvitations() {
         InvitationManagement invitationManagement = new InvitationManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
 
         });
-
-        assertEquals(true, invitationManagement.deleteInvitations("intel.aricent.iot3@gmail.com"));
+        CloudResponse response = invitationManagement.deleteInvitations("intel.aricent.iot1@gmail.com");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(invitationManagement);
     }
 }

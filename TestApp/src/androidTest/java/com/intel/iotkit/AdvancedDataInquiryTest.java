@@ -25,7 +25,9 @@ package com.intel.iotkit;
 
 import com.intel.iotkitlib.AdvancedDataInquiry;
 import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.models.AttributeFilter;
+import com.intel.iotkitlib.utils.Utilities;
 
 import org.json.JSONException;
 
@@ -40,76 +42,64 @@ public class AdvancedDataInquiryTest extends ApplicationTest {
         }
     }
 
-    public void testAdvancedDataInquiry() throws JSONException {
-        AdvancedDataInquiry objAdvancedDataInquiry = new AdvancedDataInquiry(new RequestStatusHandler() {
+    public void testAdvancedDataEnquiry() throws JSONException {
+        AdvancedDataInquiry objAdvancedDataEnquiry = new AdvancedDataInquiry(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        objAdvancedDataInquiry.addGatewayId("qwertyPAD1");
-        objAdvancedDataInquiry.addGatewayId("devTest");
-        //objAdvancedDataInquiry.addGatewayId("02-00-86-81-77-15");
 
-        objAdvancedDataInquiry.addDeviceId("qwertyPAD1");
-        objAdvancedDataInquiry.addDeviceId("devTest");
-        //objAdvancedDataInquiry.addDeviceId("02-00-86-81-77-19");
+        objAdvancedDataEnquiry.addGatewayId(deviceName);
+        objAdvancedDataEnquiry.addDeviceId(deviceName);
+        objAdvancedDataEnquiry.addComponentId(Utilities.getSensorMatch(deviceComponentName).getValue().toString());
 
-        objAdvancedDataInquiry.addComponentId("5C09B9F0-E06B-404A-A882-EAC64675A63E");
-        objAdvancedDataInquiry.addComponentId("BB9E347D-7895-437E-9ECA-8069879090B7");
-        objAdvancedDataInquiry.addComponentId("b780757a-4a45-40f3-9804-60eee953e8d2");
-        //objAdvancedDataInquiry.addComponentId("c4d1f4c1-6fb6-4793-b85d-431c6cba647b");
+        objAdvancedDataEnquiry.setStartTimestamp(0L);
+        objAdvancedDataEnquiry.setEndTimestamp(System.currentTimeMillis());
 
-        objAdvancedDataInquiry.setStartTimestamp(0L);
-        objAdvancedDataInquiry.setEndTimestamp(System.currentTimeMillis());
+        /*objAdvancedDataEnquiry.addReturnedMeasureAttributes("attr_1");
+        objAdvancedDataEnquiry.addReturnedMeasureAttributes("attr_2");
+        objAdvancedDataEnquiry.addReturnedMeasureAttributes("attr_3");*/
 
-        /*objAdvancedDataInquiry.addReturnedMeasureAttribute("attr_1");
-        objAdvancedDataInquiry.addReturnedMeasureAttribute("attr_2");
-        objAdvancedDataInquiry.addReturnedMeasureAttribute("attr_3");*/
-
-        //objAdvancedDataInquiry.setShowMeasureLocation(true);
+        //objAdvancedDataEnquiry.setShowMeasureLocation(true);
         //dev comp attrs
         AttributeFilter devCompAttributeFilter1 = new AttributeFilter("Tags");
-        devCompAttributeFilter1.addAttributeFilterValue("created from MAC book pro");
         devCompAttributeFilter1.addAttributeFilterValue("intel");
-        //devCompAttributeFilter1.addAttributeFilterValues("Sacramento");
 
         AttributeFilter devCompAttributeFilter2 = new AttributeFilter("componentType");
-        devCompAttributeFilter2.addAttributeFilterValue("temperature");
-        /*devCompAttributeFilter2.addAttributeFilterValue("value22");
-        devCompAttributeFilter2.addAttributeFilterValue("value33");*/
+        devCompAttributeFilter2.addAttributeFilterValue("temperature.v1.0");
 
-        objAdvancedDataInquiry.addDevCompAttributeFilter(devCompAttributeFilter1);
-        objAdvancedDataInquiry.addDevCompAttributeFilter(devCompAttributeFilter2);
+        objAdvancedDataEnquiry.addDevCompAttributeFilter(devCompAttributeFilter1);
+        objAdvancedDataEnquiry.addDevCompAttributeFilter(devCompAttributeFilter2);
         //measure comp attrs
         /*AttributeFilter measurementAttributeFilter1 = new AttributeFilter("mfilter_1");
-        measurementAttributeFilter1.addAttributeFilterValue("mValue1");
-        measurementAttributeFilter1.addAttributeFilterValue("mValue2");
-        measurementAttributeFilter1.addAttributeFilterValue("mValue3");
+        measurementAttributeFilter1.addAttributeFilterValues("mValue1");
+        measurementAttributeFilter1.addAttributeFilterValues("mValue2");
+        measurementAttributeFilter1.addAttributeFilterValues("mValue3");
 
         AttributeFilter measurementAttributeFilter2 = new AttributeFilter("mfilter_2");
-        measurementAttributeFilter2.addAttributeFilterValue("mValue11");
-        measurementAttributeFilter2.addAttributeFilterValue("mValue22");
-        measurementAttributeFilter2.addAttributeFilterValue("mValue33");
+        measurementAttributeFilter2.addAttributeFilterValues("mValue11");
+        measurementAttributeFilter2.addAttributeFilterValues("mValue22");
+        measurementAttributeFilter2.addAttributeFilterValues("mValue33");
 
-        objAdvancedDataInquiry.addMeasurementAttributeFilter(measurementAttributeFilter1);
-        objAdvancedDataInquiry.addMeasurementAttributeFilter(measurementAttributeFilter2);
+        objAdvancedDataEnquiry.addMeasurementAttributeFilter(measurementAttributeFilter1);
+        objAdvancedDataEnquiry.addMeasurementAttributeFilter(measurementAttributeFilter2);
 
         //value filter
         AttributeFilter valueFilter = new AttributeFilter("value");
-        valueFilter.addAttributeFilterValue("filter_value1");
-        valueFilter.addAttributeFilterValue("filter_value2");
-        valueFilter.addAttributeFilterValue("filter_value3");
-        objAdvancedDataInquiry.addValueFilter(valueFilter);*/
+        valueFilter.addAttributeFilterValues("filter_value1");
+        valueFilter.addAttributeFilterValues("filter_value2");
+        valueFilter.addAttributeFilterValues("filter_value3");
+        objAdvancedDataEnquiry.addValueFilter(valueFilter);*/
 
-        /*objAdvancedDataInquiry.setComponentRowLimit(5);
-        objAdvancedDataInquiry.setCountOnly(true);*/
+        /*objAdvancedDataEnquiry.setComponentRowLimit(5);
+        objAdvancedDataEnquiry.setCountOnly(true);*/
         //sort
-        objAdvancedDataInquiry.addSortInfo("Timestamp", "Asc");
-        objAdvancedDataInquiry.addSortInfo("Value", "Desc");
-
-        assertEquals(true, objAdvancedDataInquiry.request());
-        waitForServerResponse(objAdvancedDataInquiry);
+        objAdvancedDataEnquiry.addSortInfo("Timestamp", "Asc");
+        objAdvancedDataEnquiry.addSortInfo("Value", "Desc");
+        CloudResponse response = objAdvancedDataEnquiry.request();
+        assertEquals(true, response.getStatus());
+        waitForServerResponse(objAdvancedDataEnquiry);
     }
 }

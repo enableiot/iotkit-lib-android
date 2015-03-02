@@ -23,8 +23,10 @@
 package com.intel.iotkit;
 
 import com.intel.iotkitlib.DataManagement;
-import com.intel.iotkitlib.models.TimeSeriesData;
 import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.http.CloudResponse;
+import com.intel.iotkitlib.models.TimeSeriesData;
+import com.intel.iotkitlib.utils.Utilities;
 
 import org.json.JSONException;
 
@@ -43,37 +45,34 @@ public class DataManagementTest extends ApplicationTest {
     public void testSubmitData() throws JSONException {
         DataManagement dataManagement = new DataManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(201, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(201, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, dataManagement.submitData("real", "50", 25.0, 50.0, 100.0));
+        CloudResponse response = dataManagement.submitData(deviceComponentName, getRandomValueWithInFifty().toString(),
+                25.0, 50.0, 100.0);
+        assertEquals(true, response.getStatus());
         waitForServerResponse(dataManagement);
     }
 
     public void testRetrieveData() throws JSONException {
         DataManagement dataManagement = new DataManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
         //retrieve data
-        TimeSeriesData timeSeriesData = new
+        TimeSeriesData retrieveData = new
                 TimeSeriesData(0L, System.currentTimeMillis());
-        /*retrieveData.addDeviceId("22-a5-80-21-5b-29");
-        retrieveData.addDeviceId("xxxx");
-        retrieveData.addComponentId("9d44c354-7252-4494-8ade-39508bfdbdaf");
-        retrieveData.addComponentId("c4d1f4c1-6fb6-4793-b85d-431c6cba647b");*/
-        timeSeriesData.addDeviceId("dev1");
-        timeSeriesData.addDeviceId("dev");
-        timeSeriesData.addComponentId("8cb8bf40-d46f-4a02-8203-d3d4acad9760");
-        //retrieveData.addComponentId("c4d1f4c1-6fb6-4793-b85d-431c6cba647b");
+        retrieveData.addDeviceId(deviceName);
 
-        assertEquals(true, dataManagement.retrieveData(timeSeriesData));
+        retrieveData.addComponentId(Utilities.getSensorMatch(deviceComponentName).getValue().toString());
+        //retrieveData.addComponentId("c4d1f4c1-6fb6-4793-b85d-431c6cba647b");
+        CloudResponse response = dataManagement.retrieveData(retrieveData);
+        assertEquals(true, response.getStatus());
         waitForServerResponse(dataManagement);
     }
 }

@@ -150,6 +150,13 @@ public class AuthorizationToken {
         return accountJson;
     }
 
+    public static void parseAndStoreActivationCode(String response) throws JSONException {
+        //Set the first account details to shared prefs
+        JSONObject accountJson = new JSONObject(response);
+        Utilities.editor.putString("activationCode", accountJson.getString("activationCode"));
+        Utilities.editor.commit();
+    }
+
     public static void parseAndStoreAccountName(String accountName, int responseCode) throws JSONException {
         if (responseCode == 200) {
             Utilities.editor.putString("account_name", accountName);

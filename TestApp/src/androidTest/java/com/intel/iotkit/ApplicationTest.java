@@ -28,8 +28,18 @@ import android.test.ActivityUnitTestCase;
 import com.intel.iotkitlib.utils.Utilities;
 
 import java.lang.ref.WeakReference;
+import java.util.Random;
 
 public class ApplicationTest extends ActivityUnitTestCase<MyActivity> {
+    final static Integer startingValue = 1;
+    final static Integer endValue = 10000;
+    static String accountName;
+    static String deviceName;
+    static String componentName;
+    static String deviceComponentName;
+    static String ruleName;
+    static Integer alertId;
+
     public ApplicationTest() {
         super(MyActivity.class);
     }
@@ -40,8 +50,50 @@ public class ApplicationTest extends ActivityUnitTestCase<MyActivity> {
         Utilities.createSharedPreferences(new WeakReference<Context>(getInstrumentation().getTargetContext()));
     }
 
+    public String getRandomValueString() {
+        Random r = new Random();
+        Integer randomValue = r.nextInt(endValue - startingValue) + startingValue;
+        return randomValue.toString();
+    }
+
+    public Integer getRandomValueWithInFifty() {
+        Random r = new Random();
+        Integer randomValue = (r.nextInt(endValue - startingValue) + startingValue) % 50;
+        return randomValue;
+    }
+
+    public String getAccountName() {
+        accountName = "DemoIoT" + getRandomValueString();
+        return accountName;
+    }
+
+    public String getDeviceName() {
+        deviceName = "DemoDevice" + getRandomValueString();
+        return deviceName;
+    }
+
+    public String getComponentName() {
+        componentName = "DemoComponent" + getRandomValueString();
+        return componentName;
+    }
+
+    public String getDeviceComponentName() {
+        deviceComponentName = "DeviceDemoComponent" + getRandomValueString();
+        return deviceComponentName;
+    }
+
+    public String getRuleName() {
+        ruleName = "DemoRule" + getRandomValueString();
+        return ruleName;
+    }
+
+    public Integer getAlertId() {
+        alertId = Integer.parseInt(getRandomValueString());
+        return alertId;
+    }
+
     /*public void testSharedPreferences() {
-        assertNotNull(Utilities.sharedPreferences);
-        assertNotNull(Utilities.editor);
+        assertNotNull(IoTAppUtilities.sharedPreferences);
+        assertNotNull(IoTAppUtilities.editor);
     }*/
 }
