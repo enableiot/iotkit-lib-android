@@ -31,8 +31,10 @@
 
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.LibModules.AccountManagement;
-import com.intel.iotkitlib.LibModules.RequestStatusHandler;
+import com.intel.iotkitlib.AccountManagement;
+import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.http.CloudResponse;
+import com.intel.iotkitlib.utils.Utilities;
 
 import org.json.JSONException;
 
@@ -51,42 +53,42 @@ public class AccountManagementTest extends ApplicationTest {
     public void testCreateAnAccount() {
         AccountManagement accountManagement = new AccountManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(201, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(201, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, accountManagement.createAnAccount("UnitTesting"));
+        CloudResponse response = accountManagement.createAnAccount(getAccountName());
+        assertEquals(true, response.getStatus());
         waitForServerResponse(accountManagement);
     }
 
     public void testGetAccountInformation() {
         AccountManagement accountManagement = new AccountManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, accountManagement.getAccountInformation());
+        CloudResponse response = accountManagement.getAccountInformation();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(accountManagement);
     }
 
     public void testGetAccountActivationCode() {
         AccountManagement accountManagement = new AccountManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, accountManagement.getAccountActivationCode());
+        CloudResponse response = accountManagement.getAccountActivationCode();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(accountManagement);
     }
 
@@ -94,56 +96,56 @@ public class AccountManagementTest extends ApplicationTest {
     public void testRenewAccountActivationCode() {
         AccountManagement accountManagement = new AccountManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, accountManagement.renewAccountActivationCode());
+        CloudResponse response = accountManagement.renewAccountActivationCode();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(accountManagement);
     }
 
     public void testUpdateAnAccount() {
         AccountManagement accountManagement = new AccountManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, accountManagement.updateAnAccount("UnitTestingNewName"));
+        CloudResponse response = accountManagement.updateAnAccount(accountName);
+        assertEquals(true, response.getStatus());
         waitForServerResponse(accountManagement);
     }
 
     public void testDeleteAnAccount() {
         AccountManagement accountManagement = new AccountManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(204, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(204, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, accountManagement.deleteAnAccount());
+        CloudResponse response = accountManagement.deleteAnAccount();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(accountManagement);
     }
 
     public void testAddAnotherUserToYourAccount() throws JSONException {
         AccountManagement accountManagement = new AccountManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, accountManagement.addAnotherUserToYourAccount("1e5f2301-b121-4933-8f32-1abb0af3d777", "545b0cb707024be10dec1152", false));
+        CloudResponse response = accountManagement.addAnotherUserToYourAccount(Utilities.sharedPreferences.getString("account_id", ""), "545b0cb707024be10dec1152", true);
+        assertEquals(true, response.getStatus());
         waitForServerResponse(accountManagement);
     }
 

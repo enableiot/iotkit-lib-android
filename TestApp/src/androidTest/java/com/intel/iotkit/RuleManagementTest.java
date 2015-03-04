@@ -22,11 +22,15 @@
  */
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.LibModules.RequestStatusHandler;
-import com.intel.iotkitlib.LibModules.RuleManagement.CreateRule;
-import com.intel.iotkitlib.LibModules.RuleManagement.CreateRuleActions;
-import com.intel.iotkitlib.LibModules.RuleManagement.CreateRuleConditionValues;
-import com.intel.iotkitlib.LibModules.RuleManagement.RuleManagement;
+import android.util.Log;
+
+import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.RuleManagement;
+import com.intel.iotkitlib.http.CloudResponse;
+import com.intel.iotkitlib.models.Rule;
+import com.intel.iotkitlib.models.RuleAction;
+import com.intel.iotkitlib.models.RuleConditionValues;
+import com.intel.iotkitlib.utils.Utilities;
 
 import org.json.JSONException;
 
@@ -45,18 +49,17 @@ public class RuleManagementTest extends ApplicationTest {
     public void testCreateARule() throws JSONException {
         RuleManagement ruleManagement = new RuleManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(201, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(201, response.getCode());
                 serverResponse = true;
             }
         });
-        CreateRule createRuleObj = new CreateRule();
-        CreateRuleActions createRuleActionObj = new CreateRuleActions();
-        CreateRuleConditionValues createRuleConditionValuesObj =
-                new CreateRuleConditionValues();
+        Rule createRuleObj = new Rule();
+        RuleAction createRuleActionObj = new RuleAction();
+        RuleConditionValues createRuleConditionValuesObj = new RuleConditionValues();
 
-        createRuleObj.setRuleName("Test Rule2");
-        createRuleObj.setRuleDescription("This is a iotkit_wrapper rule");
+        createRuleObj.setRuleName(getRuleName());
+        createRuleObj.setRuleDescription("This is a iotkit_wrapper" + ruleName);
         createRuleObj.setRulePriority("Medium");
         createRuleObj.setRuleType("Regular");
         createRuleObj.setRuleStatus("Active");
@@ -72,31 +75,30 @@ public class RuleManagementTest extends ApplicationTest {
         createRuleConditionValuesObj.addConditionComponent("dataType", "Number");
         createRuleConditionValuesObj.addConditionComponent("name", "Temp.01.1");
         createRuleConditionValuesObj.setConditionType("basic");
-        createRuleConditionValuesObj.addConditionValues("25");
+        createRuleConditionValuesObj.addConditionValues(getRandomValueWithInFifty().toString());
         createRuleConditionValuesObj.setConditionOperator(">");
 
         createRuleObj.setRuleOperatorName("OR");
         createRuleObj.addRuleConditionValues(createRuleConditionValuesObj);
-
-        assertEquals(true, ruleManagement.createARule(createRuleObj));
+        CloudResponse response = ruleManagement.createARule(createRuleObj);
+        assertEquals(true, response.getStatus());
         waitForServerResponse(ruleManagement);
     }
 
     public void testUpdateRule() throws JSONException {
         RuleManagement ruleManagement = new RuleManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(201, response.getCode());
                 serverResponse = true;
             }
         });
-        CreateRule createRuleObj = new CreateRule();
-        CreateRuleActions createRuleActionObj = new CreateRuleActions();
-        CreateRuleConditionValues createRuleConditionValuesObj =
-                new CreateRuleConditionValues();
+        Rule createRuleObj = new Rule();
+        RuleAction createRuleActionObj = new RuleAction();
+        RuleConditionValues createRuleConditionValuesObj = new RuleConditionValues();
 
-        createRuleObj.setRuleName("Test Rule2");
-        createRuleObj.setRuleDescription("This is a iotkit_wrapper rule");
+        createRuleObj.setRuleName(getRuleName());
+        createRuleObj.setRuleDescription("This is a iotkit_wrapper" + ruleName);
         createRuleObj.setRulePriority("Medium");
         createRuleObj.setRuleType("Regular");
         createRuleObj.setRuleStatus("Active");
@@ -112,78 +114,79 @@ public class RuleManagementTest extends ApplicationTest {
         createRuleConditionValuesObj.addConditionComponent("dataType", "Number");
         createRuleConditionValuesObj.addConditionComponent("name", "Temp.01.1");
         createRuleConditionValuesObj.setConditionType("basic");
-        createRuleConditionValuesObj.addConditionValues("25");
+        createRuleConditionValuesObj.addConditionValues(getRandomValueWithInFifty().toString());
         createRuleConditionValuesObj.setConditionOperator(">");
 
         createRuleObj.setRuleOperatorName("OR");
         createRuleObj.addRuleConditionValues(createRuleConditionValuesObj);
-
-        assertEquals(true, ruleManagement.updateARule(createRuleObj, "90205"));
+        Log.d("rule id extracted from shared prefs", Utilities.sharedPreferences.getString("ruleId", ""));
+        CloudResponse response = ruleManagement.updateARule(createRuleObj, Utilities.sharedPreferences.getString("ruleId", ""));
+        assertEquals(true, response.getStatus());
         waitForServerResponse(ruleManagement);
     }
 
     public void testCreateRuleAsDraft() throws JSONException {
         RuleManagement ruleManagement = new RuleManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, ruleManagement.createRuleAsDraft("iotkit_wrapper draft rule 14/11/2014"));
+        CloudResponse response = ruleManagement.createRuleAsDraft("iotkit_wrapper draft rule" + getRuleName());
+        assertEquals(true, response.getStatus());
         waitForServerResponse(ruleManagement);
     }
 
     public void testDeleteADraftRule() throws JSONException {
         RuleManagement ruleManagement = new RuleManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(204, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(204, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, ruleManagement.deleteADraftRule("284fb6d048402e17b0cee60a24e426830328d316"));
+        CloudResponse response = ruleManagement.deleteADraftRule(Utilities.sharedPreferences.getString("DraftRuleId", ""));
+        assertEquals(true, response.getStatus());
         waitForServerResponse(ruleManagement);
     }
 
     public void testGetInformationOnRule() throws JSONException {
         RuleManagement ruleManagement = new RuleManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, ruleManagement.getInformationOnRule("90205"));
+        CloudResponse response = ruleManagement.getInformationOnRule(Utilities.sharedPreferences.getString("ruleId", ""));
+        assertEquals(true, response.getStatus());
         waitForServerResponse(ruleManagement);
     }
 
     public void testGetListOfRules() throws JSONException {
         RuleManagement ruleManagement = new RuleManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, ruleManagement.getListOfRules());
+        CloudResponse response = ruleManagement.getListOfRules();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(ruleManagement);
     }
 
     public void testUpdateStatusOfRule() throws JSONException {
         RuleManagement ruleManagement = new RuleManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-
-        assertEquals(true, ruleManagement.updateStatusOfRule("90205", "Archived"));
+        CloudResponse response = ruleManagement.updateStatusOfRule(Utilities.sharedPreferences.getString("ruleId", ""), "Archived");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(ruleManagement);
     }
 }

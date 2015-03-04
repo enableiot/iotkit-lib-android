@@ -32,9 +32,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.intel.iotkitlib.LibModules.AuthorizationManagement.Authorization;
-import com.intel.iotkitlib.LibModules.RequestStatusHandler;
-import com.intel.iotkitlib.LibUtils.Utilities;
+import com.intel.iotkitlib.Authorization;
+import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.http.CloudResponse;
+import com.intel.iotkitlib.utils.Utilities;
 
 import java.lang.ref.WeakReference;
 
@@ -65,18 +66,37 @@ public class MyActivity extends Activity {
                 //This call needed to create shared Prefs for the TestApp and also assigns passed context in utilities for further usage
                 Utilities.createSharedPreferences(new WeakReference<Context>(MyActivity.this));
 
-                //written test code to call Authorization module
-                Authorization getToken = new Authorization(new RequestStatusHandler() {
+                /****written test code to call Authorization module Asynchronously & Synchronously****/
+
+                //######Asynchronous Http call##########
+                //Passing valid anonymous callback creates AsyncTask to handle HTTP requests
+                Authorization getTokenAsync = new Authorization(new RequestStatusHandler() {
                     //anonymous call back
                     @Override
-                    public void readResponse(int responseCode, String response) {
-                        setResponse(responseCode, response);
+                    public void readResponse(CloudResponse response) {
+                        setResponse(response.getCode(), response.getResponse());
                     }
                 });
-                //for getting token
-                getToken.getNewAuthorizationToken("intel.aricent.iot4@gmail.com", "Password2529");
-            }
+                CloudResponse cloudResponse = getTokenAsync.getNewAuthorizationToken("xxxx@gmail.com", "xxxx");
+                setResponse(cloudResponse.getCode(), cloudResponse.getResponse());
 
+                //######Synchronous Http call##########
+                //Sync call doing on background thread, doing on UI thread is not valid(creates NetworkOnMainThreadException)
+                final Authorization getTokenSync = new Authorization();//passing null handler creates Synchronous Http call
+                //for getting token
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final CloudResponse cloudResponse = getTokenSync.getNewAuthorizationToken("xxxx@gmail.com", "xxxx");
+                        runOnUiThread(new Runnable() {//updating cloud response to activity over UI thread
+                            @Override
+                            public void run() {
+                                setResponse(cloudResponse.getCode(), cloudResponse.getResponse());
+                            }
+                        });
+                    }
+                }).start();
+            }
         });
     }
 }
