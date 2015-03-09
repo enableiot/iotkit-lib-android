@@ -160,9 +160,21 @@ public class UserManagement extends ParentModule {
             Log.d(TAG, ERR_INVALID_ID);
             return new CloudResponse(false, ERR_INVALID_ID);
         }
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
+            @Override
+            public void readResponse(CloudResponse response) {
+                Log.d(TAG, String.valueOf(response.getCode()));
+                Log.d(TAG, response.getResponse());
+                try {
+                    AuthorizationToken.parseAndStoreUserMailId(response.getResponse(), response.getCode());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
         getUserInfo.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.getUserInfo, createHashMapWithUserID(tempUserId));
-        return super.invokeHttpExecuteOnURL(url, getUserInfo);
+        return super.invokeHttpExecuteOnURL(url, getUserInfo, preProcessing);
     }
 
     /**
@@ -304,12 +316,12 @@ public class UserManagement extends ParentModule {
         return requestChangePwdJson.toString();
     }
 
-    private String createBodyForTermsAndConditionsAcceptance(String userId, boolean accept) throws JSONException {
+    /*private String createBodyForTermsAndConditionsAcceptance(String userId, boolean accept) throws JSONException {
         JSONObject acceptTermsAndConditions = new JSONObject();
         acceptTermsAndConditions.put("id", userId);
         acceptTermsAndConditions.put("termsAndConditions", accept);
         return acceptTermsAndConditions.toString();
-    }
+    }*/
 
     private String createBodyForUserAttributesUpdation(String userId, List<NameValuePair> userAttributes) throws JSONException {
         JSONObject updateAttributesJson = new JSONObject();

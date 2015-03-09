@@ -26,6 +26,7 @@ package com.intel.iotkit;
 import com.intel.iotkitlib.AlertManagement;
 import com.intel.iotkitlib.RequestStatusHandler;
 import com.intel.iotkitlib.http.CloudResponse;
+import com.intel.iotkitlib.utils.Utilities;
 
 import org.json.JSONException;
 
@@ -88,7 +89,7 @@ public class AlertManagementTest extends ApplicationTest {
                 serverResponse = true;
             }
         });
-        CloudResponse response = alertManagement.addCommentsToTheAlert(alertId.toString(), "xxxx@example.com",
+        CloudResponse response = alertManagement.addCommentsToTheAlert(alertId.toString(), Utilities.sharedPreferences.getString("email", ""),
                 System.currentTimeMillis(), "iotkit_wrapper comment");
         assertEquals(true, response.getStatus());
         waitForServerResponse(alertManagement);
