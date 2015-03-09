@@ -50,7 +50,7 @@ public class AuthorizationTest extends ApplicationTest {
         });
         //for getting token
         CloudResponse response = getToken.getNewAuthorizationToken
-                ("intel.aricent.iot3@gmail.com", "Password2529");
+                ("xxxx@gmail.com", "xxxx");
         assertEquals(true, response.getStatus());
         waitForServerResponse(getToken);
     }

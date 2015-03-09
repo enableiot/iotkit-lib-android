@@ -55,7 +55,7 @@ public class UserManagementTest extends ApplicationTest {
                 serverResponse = true;
             }
         });
-        CloudResponse response = userManagement.createNewUser("intel.aricent.iot@gmail.com", "Password2529");
+        CloudResponse response = userManagement.createNewUser("xxxxx@gmail.com", "xxxx");
         assertEquals(true, response.getStatus());
         waitForServerResponse(userManagement);
     }
@@ -99,7 +99,7 @@ public class UserManagementTest extends ApplicationTest {
                 serverResponse = true;
             }
         });
-        CloudResponse response = userManagement.requestChangePassword("intel.aricent.iot@gmail.com");
+        CloudResponse response = userManagement.requestChangePassword(Utilities.sharedPreferences.getString("email", ""));
         assertEquals(true, response.getStatus());
         waitForServerResponse(userManagement);
     }
@@ -125,7 +125,8 @@ public class UserManagementTest extends ApplicationTest {
                 serverResponse = true;
             }
         });
-        CloudResponse response = userManagement.changePassword("intel.aricent.iot@gmail.com", "Password2529", "Password25292");
+        CloudResponse response = userManagement.changePassword(Utilities.sharedPreferences.getString("email", "")
+                , "Password2529", "Password25292");
         assertEquals(true, response.getStatus());
         waitForServerResponse(userManagement);
     }
