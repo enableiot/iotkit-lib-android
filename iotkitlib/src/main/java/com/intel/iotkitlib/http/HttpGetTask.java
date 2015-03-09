@@ -22,100 +22,13 @@
  */
 package com.intel.iotkitlib.http;
 
-import android.os.AsyncTask;
-import android.util.Log;
-
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.List;
-
-
-public class HttpGetTask implements HttpTask {
-    private static final String TAG = "HttpGetTask";
-    private static final boolean debug = true;
-
-    //protected Context mContext;
-    private List<NameValuePair> headerList;
-
-    private AsyncTask<String, Void, CloudResponse> asyncTask;
+public class HttpGetTask extends HttpTask {
 
     public CloudResponse doAsync(final String url, final HttpTaskHandler taskHandler) {
-        asyncTask = new AsyncTask<String, Void, CloudResponse>() {
-            @Override
-            protected CloudResponse doInBackground(String... urls) {
-                return doSync(urls[0]);
-            }
-            protected void onPostExecute(CloudResponse response) {
-                // Done on UI Thread
-                if (response != null && taskHandler != null) {
-                    taskHandler.taskResponse(response.code, response.response);
-                }
-            }
-        };
-        asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
-        return new CloudResponse(true, "Successful execute " + url);
+        return HTTPAsync("GET", url, taskHandler);
     }
 
-    public CloudResponse doSync(String url) {
-        HttpClient httpClient = new DefaultHttpClient();
-        try {
-            HttpContext localContext = new BasicHttpContext();
-            HttpGet httpGet = new HttpGet(url);
-            //adding headers one by one
-            for (NameValuePair nvp : headerList) {
-                httpGet.addHeader(nvp.getName(), nvp.getValue());
-            }
-            if (debug) {
-                Log.e(TAG, "URI is : " + httpGet.getURI());
-                Header[] headers = httpGet.getAllHeaders();
-                for (int i = 0; i < headers.length; i++) {
-                    Log.e(TAG, "Header " + i + " is :" + headers[i].getName() + ":" + headers[i].getValue());
-                }
-            }
-            HttpResponse response = httpClient.execute(httpGet, localContext);
-            if (response != null && response.getStatusLine() != null) {
-                if (debug) Log.d(TAG, "response: " + response.getStatusLine().getStatusCode());
-            }
-
-
-            HttpEntity responseEntity = response != null ? response.getEntity() : null;
-            StringBuilder builder = new StringBuilder();
-            if (responseEntity != null) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(responseEntity.getContent(), HTTP.UTF_8));
-                for (String line = null; (line = reader.readLine()) != null; ) {
-                    builder.append(line).append("\n");
-                }
-                if (debug) Log.d(TAG, "Response received is :" + builder.toString());
-            }
-
-            CloudResponse cloudResponse = new CloudResponse();
-            if (response != null) {
-                cloudResponse.code = response.getStatusLine().getStatusCode();
-            }
-            cloudResponse.response = builder.toString();
-            return cloudResponse;
-        } catch (java.net.ConnectException cEx) {
-            Log.e(TAG, cEx.getMessage());
-            return new CloudResponse(false, cEx.getMessage());
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-            e.printStackTrace();
-            return new CloudResponse(false, e.getMessage());
-        }
-    }
-
-    public void setHeaders(List<NameValuePair> headers) {
-        this.headerList = headers;
+    public CloudResponse doSync(final String url) {
+        return HTTPSync("GET", url);
     }
 }

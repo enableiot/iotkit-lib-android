@@ -22,94 +22,13 @@
  */
 package com.intel.iotkitlib.http;
 
-import android.os.AsyncTask;
-import android.util.Log;
-
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.List;
-
-public class HttpDeleteTask implements HttpTask {
-    private static final String TAG = "HttpDeleteTask";
-    private static final boolean debug = true;
-    private List<NameValuePair> headerList;
-
-    private AsyncTask<String, Void, CloudResponse> asyncTask;
+public class HttpDeleteTask extends HttpTask {
 
     public CloudResponse doAsync(final String url, final HttpTaskHandler taskHandler) {
-        asyncTask = new AsyncTask<String, Void, CloudResponse>() {
-            @Override
-            protected CloudResponse doInBackground(String... urls) {
-                return doSync(urls[0]);
-            }
-            protected void onPostExecute(CloudResponse response) {
-                // Done on UI Thread
-                if (response != null && taskHandler != null) {
-                    taskHandler.taskResponse(response.code, response.response);
-                }
-            }
-        };
-        asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
-        return new CloudResponse(true, "Successful execute " + url);
+        return HTTPAsync("DELETE", url, taskHandler);
     }
 
-    public CloudResponse doSync(String url) {
-        HttpClient httpClient = new DefaultHttpClient();
-        try {
-            HttpContext localContext = new BasicHttpContext();
-            HttpDelete httpDelete = new HttpDelete(url);
-            //adding headers one by one
-            for (NameValuePair nvp : headerList) {
-                httpDelete.addHeader(nvp.getName(), nvp.getValue());
-            }
-            if (debug) {
-                Log.e(TAG, "URI is : " + httpDelete.getURI());
-                Header[] headers = httpDelete.getAllHeaders();
-                for (int i = 0; i < headers.length; i++) {
-                    Log.e(TAG, "Header " + i + " is :" + headers[i].getName() + ":" + headers[i].getValue());
-                }
-            }
-            HttpResponse response = httpClient.execute(httpDelete, localContext);
-            if (response != null && response.getStatusLine() != null) {
-                if (debug) Log.d(TAG, "response: " + response.getStatusLine().getStatusCode());
-            }
-            HttpEntity responseEntity = response != null ? response.getEntity() : null;
-            StringBuilder builder = new StringBuilder();
-            if (responseEntity != null) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(responseEntity.getContent(), HTTP.UTF_8));
-                for (String line = null; (line = reader.readLine()) != null; ) {
-                    builder.append(line).append("\n");
-                }
-                if (debug) Log.d(TAG, "Response received is :" + builder.toString());
-            }
-            CloudResponse cloudResponse = new CloudResponse();
-            if (response != null) {
-                cloudResponse.code = response.getStatusLine().getStatusCode();
-            }
-            cloudResponse.response = builder.toString();
-            return cloudResponse;
-        } catch (java.net.ConnectException cEx) {
-            Log.e(TAG, cEx.getMessage());
-            return new CloudResponse(false, cEx.getMessage());
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-            e.printStackTrace();
-            return new CloudResponse(false, e.getMessage());
-        }
-    }
-
-    public void setHeaders(List<NameValuePair> headers) {
-        this.headerList = headers;
+    public CloudResponse doSync(final String url) {
+        return HTTPSync("DELETE", url);
     }
 }
