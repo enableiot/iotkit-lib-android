@@ -22,11 +22,8 @@
  */
 package com.intel.iotkitlib;
 
-import android.util.Log;
-
 import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpPostTask;
-import com.intel.iotkitlib.http.HttpTaskHandler;
 import com.intel.iotkitlib.models.AttributeFilter;
 
 import org.apache.http.NameValuePair;
@@ -42,12 +39,10 @@ import java.util.List;
  * Advanced Data Inquiry module
  */
 public class AdvancedDataInquiry extends ParentModule {
-    private final static String TAG = "AdvancedDataEnquiry";
-
     // Errors
     public final static String ERR_INVALID_REQUEST = "Invalid body for request";
-
-    String msgType;
+    //private final static String TAG = "AdvancedDataEnquiry";
+    //String msgType;
     List<String> gatewayIds;
     List<String> deviceIds;
     List<String> componentIds;
@@ -71,12 +66,14 @@ public class AdvancedDataInquiry extends ParentModule {
      * Advanced Data Inquiry allows querying measurement data (values, location and attributes) for
      * a single account using advanced filtering and sorting; use this to do sync operation
      */
-    public AdvancedDataInquiry() { super(null); }
+    public AdvancedDataInquiry() {
+        super(null);
+    }
 
     /**
      * Advanced Data Inquiry allows querying measurement data (values, location and attributes) for
      * a single account using advanced filtering and sorting.
-     *
+     * <p/>
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Advanced-Data-Inquiry}
      *
      * @param requestStatusHandler The handler for asynchronously request to return data and status
@@ -93,6 +90,7 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Add a gateway id that is requested for the data in the report.
+     *
      * @param gatewayId The gateway identifier for gateway data to be included in the report.
      */
     public void addGatewayId(String gatewayId) {
@@ -101,8 +99,10 @@ public class AdvancedDataInquiry extends ParentModule {
         }
         this.gatewayIds.add(gatewayId);
     }
+
     /**
      * Add a device id that is requested for the data in the report.
+     *
      * @param deviceId The device identifier for device data to be included in the report.
      */
     public void addDeviceId(String deviceId) {
@@ -114,6 +114,7 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Add a component id that is requested for the data in the report.
+     *
      * @param componentId The component identifier for component data to be included in the report.
      */
     public void addComponentId(String componentId) {
@@ -125,6 +126,7 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Set the start time for query data in be included in the report.
+     *
      * @param startTimestamp time in milliseconds since epoch time.
      */
     public void setStartTimestamp(Long startTimestamp) {
@@ -133,6 +135,7 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Set the end time for query data in be included in the report.
+     *
      * @param endTimestamp time in milliseconds since epoch time.
      */
     public void setEndTimestamp(Long endTimestamp) {
@@ -141,6 +144,7 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Add a requested attribute to a list of attributes that will be return for each measurement.
+     *
      * @param attribute The attribute to add to the list of attributes that will be part of the request.
      */
     public void addReturnedMeasureAttribute(String attribute) {
@@ -152,6 +156,7 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Request for location (lat, long, alt) as part of each returned measurement.
+     *
      * @param measureLocation if true returns location.
      */
     public void setShowMeasureLocation(Boolean measureLocation) {
@@ -160,6 +165,7 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Filter request based on device and/or component attributes.
+     *
      * @param attributeFilter is of name and values.
      */
     public void addDevCompAttributeFilter(AttributeFilter attributeFilter) {
@@ -171,6 +177,7 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Filter request based on measurement attributes.
+     *
      * @param attributeFilter is of name and values.
      */
     public void addMeasurementAttributeFilter(AttributeFilter attributeFilter) {
@@ -182,6 +189,7 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Filter request based on value attributes.
+     *
      * @param attributeFilter is of name and values.
      */
     public void addValueFilter(AttributeFilter attributeFilter) {
@@ -190,6 +198,7 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Limits the number of records returned for each component in the report.
+     *
      * @param componentRowLimit the number of row that will be returned.
      */
     public void setComponentRowLimit(int componentRowLimit) {
@@ -198,6 +207,7 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Setting to true will return the number of rows that would have returned from this report.
+     *
      * @param countOnly true will return number of rows.
      */
     public void setCountOnly(Boolean countOnly) {
@@ -206,7 +216,8 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Add the sort criteria to the query.
-     * @param name The sort field name.
+     *
+     * @param name  The sort field name.
      * @param value The source value. It must be "Asc" or "Desc".
      */
     public void addSortInfo(String name, String value) {
@@ -218,6 +229,7 @@ public class AdvancedDataInquiry extends ParentModule {
 
     /**
      * Starts a request for the report.
+     *
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
@@ -239,11 +251,11 @@ public class AdvancedDataInquiry extends ParentModule {
 
     private String createBodyForAdvancedDataInquiry() throws JSONException {
         JSONObject dataInquiryJson = new JSONObject();
-        if (this.msgType == null) {
+        /*if (this.msgType == null) {
             dataInquiryJson.put("msgType", "advancedDataInquiryRequest");
         } else {
             dataInquiryJson.put("msgType", this.msgType);
-        }
+        }*/
         if (this.gatewayIds != null) {
             JSONArray gatewayArray = new JSONArray();
             for (String gatewayId : this.gatewayIds) {

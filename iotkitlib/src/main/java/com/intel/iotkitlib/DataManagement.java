@@ -26,7 +26,6 @@ import android.util.Log;
 
 import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.http.HttpPostTask;
-import com.intel.iotkitlib.http.HttpTaskHandler;
 import com.intel.iotkitlib.models.TimeSeriesData;
 import com.intel.iotkitlib.utils.Utilities;
 
@@ -42,17 +41,16 @@ import java.util.List;
  * Data management functions
  */
 public class DataManagement extends ParentModule {
-    private final static String TAG = "DataManagement";
-
     // Error strings
     public final static String ERR_SUBMIT_DATA = "Cannot submit data for device component";
     public final static String ERR_CREATE_DATA = "Cannot create request for submit data";
     public final static String ERR_INVALID_DATA = "device List or componentId List cannot be null";
+    private final static String TAG = "DataManagement";
 
 
     /**
      * Submit and retrieve data for a device. This is use to do sync operation.
-     *
+     * <p/>
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Data-API}
      */
     public DataManagement() {
@@ -73,11 +71,12 @@ public class DataManagement extends ParentModule {
      * Submit data for specific device and it's component. Device and component have to be
      * registered in the cloud before sending observations. The device id
      * that is used will be the current device that is cached usually after a create new device.
-     * @param componentName the name of the component to look up the component id.
+     *
+     * @param componentName  the name of the component to look up the component id.
      * @param componentValue the value to set for the component.
-     * @param latitude lat location for the device in decimal
-     * @param longitude lon location for the device in decimal
-     * @param height altitude value in meters
+     * @param latitude       lat location for the device in decimal
+     * @param longitude      lon location for the device in decimal
+     * @param height         altitude value in meters
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
@@ -85,7 +84,7 @@ public class DataManagement extends ParentModule {
      * @throws JSONException
      */
     public CloudResponse submitData(String componentName, String componentValue,
-                              Double latitude, Double longitude, Double height) throws JSONException {
+                                    Double latitude, Double longitude, Double height) throws JSONException {
         String componentId = validateRequestBodyParametersAndGetcomponentId(componentName, componentValue);
         if (componentId == null) {
             Log.d(TAG, ERR_SUBMIT_DATA);
@@ -99,7 +98,7 @@ public class DataManagement extends ParentModule {
             Log.d(TAG, ERR_CREATE_DATA);
             return new CloudResponse(false, ERR_CREATE_DATA);
         }
-
+        submitDeviceData.setHeaders(submitDataHeaders);
         submitDeviceData.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.submitData, null);
         return super.invokeHttpExecuteOnURL(url, submitDeviceData);
@@ -108,12 +107,13 @@ public class DataManagement extends ParentModule {
     /**
      * Submit data for specific device and it's component. Device and component have to be
      * registered in the cloud before sending observations.
-     * @param deviceId the identifier for the device to submit the data for.
-     * @param componentName the name of the component to look up the component id.
+     *
+     * @param deviceId       the identifier for the device to submit the data for.
+     * @param componentName  the name of the component to look up the component id.
      * @param componentValue the value to set for the component.
-     * @param latitude lat location for the device in decimal
-     * @param longitude lon location for the device in decimal
-     * @param height altitude value in meters
+     * @param latitude       lat location for the device in decimal
+     * @param longitude      lon location for the device in decimal
+     * @param height         altitude value in meters
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
@@ -121,7 +121,7 @@ public class DataManagement extends ParentModule {
      * @throws JSONException
      */
     public CloudResponse submitData(String deviceId, String componentName, String componentValue,
-                              Double latitude, Double longitude, Double height) throws JSONException {
+                                    Double latitude, Double longitude, Double height) throws JSONException {
         String componentId = validateRequestBodyParametersAndGetcomponentId(componentName, componentValue);
         if (componentId == null) {
             Log.d(TAG, ERR_SUBMIT_DATA);
@@ -147,6 +147,7 @@ public class DataManagement extends ParentModule {
 
     /**
      * Retrieve data for an account.
+     *
      * @param objTimeSeriesData time series data criteria for retrieve data from the cloud
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from

@@ -25,6 +25,8 @@ package com.intel.iotkit;
 
 import com.intel.iotkitlib.AlertManagement;
 import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.http.CloudResponse;
+import com.intel.iotkitlib.utils.Utilities;
 
 import org.json.JSONException;
 
@@ -43,60 +45,66 @@ public class AlertManagementTest extends ApplicationTest {
     public void testGetListOfAlerts() {
         AlertManagement alertManagement = new AlertManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, alertManagement.getListOfAlerts());
+        CloudResponse response = alertManagement.getListOfAlerts();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(alertManagement);
     }
 
     public void testGetInfoOnAlert() {
         AlertManagement alertManagement = new AlertManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, alertManagement.getInfoOnAlert("1111"));
+        CloudResponse response = alertManagement.getInfoOnAlert(alertId.toString());
+        assertEquals(true, response.getStatus());
         waitForServerResponse(alertManagement);
     }
 
     public void testUpdateAlertStatus() {
         AlertManagement alertManagement = new AlertManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, alertManagement.updateAlertStatus("1111", "open"));
+        CloudResponse response = alertManagement.updateAlertStatus(alertId.toString(), "Open");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(alertManagement);
     }
 
     public void testAddCommentsToTheAlert() throws JSONException {
         AlertManagement alertManagement = new AlertManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, alertManagement.addCommentsToTheAlert("1111", "raghu", System.currentTimeMillis(), "iotkit_wrapper comment"));
+        CloudResponse response = alertManagement.addCommentsToTheAlert(alertId.toString(), Utilities.sharedPreferences.getString("email", ""),
+                System.currentTimeMillis(), "iotkit_wrapper comment");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(alertManagement);
     }
 
     public void testResetAlert() throws JSONException {
         AlertManagement alertManagement = new AlertManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, alertManagement.resetAlert("1111"));
+        CloudResponse response = alertManagement.resetAlert(alertId.toString());
+        assertEquals(true, response.getStatus());
         waitForServerResponse(alertManagement);
     }
 }

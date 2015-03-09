@@ -23,8 +23,9 @@
 package com.intel.iotkit;
 
 import com.intel.iotkitlib.ComponentCatalogManagement;
-import com.intel.iotkitlib.models.ComponentCatalog;
 import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.http.CloudResponse;
+import com.intel.iotkitlib.models.ComponentCatalog;
 
 import org.json.JSONException;
 
@@ -43,53 +44,56 @@ public class ComponentCatalogManagementTest extends ApplicationTest {
     public void testListAllComponentTypesCatalog() {
         ComponentCatalogManagement objCatalog = new ComponentCatalogManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, objCatalog.listAllComponentTypesCatalog());
+        CloudResponse response = objCatalog.listAllComponentTypesCatalog();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objCatalog);
     }
 
     public void testListAllDetailsOfComponentTypesCatalog() {
         ComponentCatalogManagement objCatalog = new ComponentCatalogManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, objCatalog.listAllDetailsOfComponentTypesCatalog());
+        CloudResponse response = objCatalog.listAllDetailsOfComponentTypesCatalog();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objCatalog);
     }
 
     public void testListComponentTypeDetails() {
         ComponentCatalogManagement objCatalog = new ComponentCatalogManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, objCatalog.listComponentTypeDetails("temperature.v1.0"));
+        CloudResponse response = objCatalog.listComponentTypeDetails("temperature.v1.0");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objCatalog);
     }
 
     public void testCreateCustomComponent() throws JSONException {
         ComponentCatalogManagement objCatalog = new ComponentCatalogManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(201, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(201, response.getCode());
                 serverResponse = true;
             }
         });
         ComponentCatalog createComponentCatalog = new
-                ComponentCatalog("IntelODCAC3", "1.0", "actuator", "Number", "float", "Degrees Celsius", "timeSeries");
+                ComponentCatalog(getComponentName(), "1.0", "actuator", "Number", "float", "Degrees Celsius", "timeSeries");
         createComponentCatalog.setMinValue(5.0);
         createComponentCatalog.setMaxValue(100.0);
         createComponentCatalog.setCommandString("Intel actuator");
@@ -98,16 +102,17 @@ public class ComponentCatalogManagementTest extends ApplicationTest {
         createComponentCatalog.addCommandParameters("AC3", "32-38");
         createComponentCatalog.addCommandParameters("TrueAC", "20-30");
         createComponentCatalog.addCommandParameters("LiveAC", "10-20");
-        assertEquals(true, objCatalog.createCustomComponent(createComponentCatalog));
+        CloudResponse response = objCatalog.createCustomComponent(createComponentCatalog);
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objCatalog);
     }
 
     public void testUpdateAComponent() throws JSONException {
         ComponentCatalogManagement objCatalog = new ComponentCatalogManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(201, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(201, response.getCode());
                 serverResponse = true;
             }
         });
@@ -121,8 +126,8 @@ public class ComponentCatalogManagementTest extends ApplicationTest {
         updateComponentCatalog.addCommandParameters("AC3", "31-38");
         updateComponentCatalog.addCommandParameters("TrueAC", "20-30");
         updateComponentCatalog.addCommandParameters("LiveAC", "10-20");
-
-        assertEquals(true, objCatalog.updateAComponent(updateComponentCatalog, "IntelODCAC3.V1.0"));
+        CloudResponse response = objCatalog.updateAComponent(updateComponentCatalog, componentName + ".V1.0");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objCatalog);
     }
 }

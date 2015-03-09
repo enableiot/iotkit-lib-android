@@ -22,9 +22,11 @@
  */
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.models.Device;
 import com.intel.iotkitlib.DeviceManagement;
 import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.http.CloudResponse;
+import com.intel.iotkitlib.models.Device;
+import com.intel.iotkitlib.utils.Utilities;
 
 import org.json.JSONException;
 
@@ -44,22 +46,24 @@ public class DeviceManagementTest extends ApplicationTest {
     public void testCreateNewDevice() {
         DeviceManagement objDevice = new DeviceManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(201, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(201, response.getCode());
                 serverResponse = true;
             }
         });
+        String deviceNameRandom = getDeviceName();
         //create a device
         Device objDeviceDetails = new
-                Device("iotkit_wrapper-Device-retrieve-data2", "devTest", "devTest");
+                Device("iotkit Device" + getRandomValueString(), deviceNameRandom, deviceNameRandom);
         objDeviceDetails.setLocation(12.0, 16.0, 18.0);
         objDeviceDetails.addTagName("Intel ODC test dev");
-        objDeviceDetails.addAttributeInfo("processor", "Intel");
+        objDeviceDetails.addAttributeInfo("processor", "AMD");
         objDeviceDetails.addAttributeInfo("Camera", "8Mp with flash");
         objDeviceDetails.addAttributeInfo("Wifi", "Yes");
-        objDeviceDetails.addAttributeInfo("Retina", "Yes");
+        objDeviceDetails.addAttributeInfo("Retina", "No");
         try {
-            assertEquals(true, objDevice.createNewDevice(objDeviceDetails));
+            CloudResponse response = objDevice.createNewDevice(objDeviceDetails);
+            assertEquals(true, response.getStatus());
         } catch (JSONException je) {
             je.printStackTrace();
         }
@@ -69,8 +73,8 @@ public class DeviceManagementTest extends ApplicationTest {
     public void testUpdateADevice() {
         DeviceManagement objDevice = new DeviceManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
@@ -83,14 +87,16 @@ public class DeviceManagementTest extends ApplicationTest {
         objDeviceDetails.addAttributeInfo("Camera", "5Mp with flash");
         objDeviceDetails.addAttributeInfo("Wifi", "Yes");*/
         Device objDeviceDetails = new
-                Device("iot dev", null, "devTest");
+                Device("iotkit Device" + getRandomValueString(), null, deviceName);
         objDeviceDetails.setLocation(10.0, 15.0, 15.0);
         objDeviceDetails.addTagName("intel");
-        objDeviceDetails.addAttributeInfo("processor", "AMD");
+        objDeviceDetails.addAttributeInfo("processor", "Intel");
         objDeviceDetails.addAttributeInfo("Camera", "5Mp with out flash");
         objDeviceDetails.addAttributeInfo("Wifi", "no");
+        objDeviceDetails.addAttributeInfo("Retina", "Yes");
         try {
-            assertEquals(true, objDevice.updateADevice(objDeviceDetails));
+            CloudResponse response = objDevice.updateADevice(objDeviceDetails);
+            assertEquals(true, response.getStatus());
         } catch (JSONException je) {
             je.printStackTrace();
         }
@@ -100,108 +106,118 @@ public class DeviceManagementTest extends ApplicationTest {
     public void testGetDeviceList() {
         DeviceManagement objDevice = new DeviceManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, objDevice.getDeviceList());
+        CloudResponse response = objDevice.getDeviceList();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objDevice);
     }
 
     public void testGetMyDeviceInfo() {
         DeviceManagement objDevice = new DeviceManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, objDevice.getMyDeviceInfo());
+        CloudResponse response = objDevice.getMyDeviceInfo();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objDevice);
     }
 
     public void testGetInfoOnDevice() {
         DeviceManagement objDevice = new DeviceManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, objDevice.getInfoOnDevice("devTest"));
+        CloudResponse response = objDevice.getInfoOnDevice(deviceName);
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objDevice);
     }
 
     public void testActivateADevice() throws JSONException {
         DeviceManagement objDevice = new DeviceManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, objDevice.activateADevice("L6Nvfy8X"));
+        //getting activation code from shared prefs
+        CloudResponse response = objDevice.activateADevice(Utilities.sharedPreferences.getString("activationCode", ""));
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objDevice);
     }
 
     public void testAddComponentToDevice() throws JSONException {
         DeviceManagement objDevice = new DeviceManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(201, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(201, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, objDevice.addComponentToDevice("real", "temperature.v1.0"));
+        CloudResponse response = objDevice.addComponentToDevice(getDeviceComponentName(), "temperature.v1.0");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objDevice);
     }
 
     public void testDeleteAComponent() {
         DeviceManagement objDevice = new DeviceManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(204, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(204, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, objDevice.deleteAComponent("real"));
+        CloudResponse response = objDevice.deleteAComponent(deviceComponentName);
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objDevice);
     }
 
     public void testDeleteADevice() {
         DeviceManagement objDevice = new DeviceManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(204, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(204, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, objDevice.deleteADevice("devTest"));
+        CloudResponse response = objDevice.deleteADevice(deviceName);
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objDevice);
     }
 
     public void testGetAllAttributes() {
         DeviceManagement objDevice = new DeviceManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, objDevice.getAllAttributes());
+        CloudResponse response = objDevice.getAllAttributes();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objDevice);
     }
 
     public void testGetAllTags() {
         DeviceManagement objDevice = new DeviceManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, objDevice.getAllTags());
+        CloudResponse response = objDevice.getAllTags();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(objDevice);
     }
 }

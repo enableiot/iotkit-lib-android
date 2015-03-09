@@ -29,10 +29,10 @@ import com.intel.iotkitlib.http.HttpDeleteTask;
 import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpPutTask;
-import com.intel.iotkitlib.http.HttpTaskHandler;
 import com.intel.iotkitlib.models.Rule;
 import com.intel.iotkitlib.models.RuleAction;
 import com.intel.iotkitlib.models.RuleConditionValues;
+import com.intel.iotkitlib.utils.Utilities;
 
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
@@ -45,27 +45,28 @@ import java.util.LinkedHashMap;
  * Rule management functions
  */
 public class RuleManagement extends ParentModule {
-    private final static String TAG = "RuleManagement";
-
     // Errors
-    public final static String ERR_INVALID_ID =  "rule id cannot be null";
+    public final static String ERR_INVALID_ID = "rule id cannot be null";
     public final static String ERR_INVALID_STATUS = "status cannot be null";
     public final static String ERR_INVALID_BODY = "Invalid body for rule";
     public final static String ERR_INVALID_NAME = "rule name cannot be null";
     public final static String ERR_INVALID_RULE = "Invalid rule object";
+    private final static String TAG = "RuleManagement";
 
     /**
      * Module that manages rules. manage Rules. A rule is an association between one or more
      * device's components, a set of conditions for those components, and a number of actions
      * that have to be triggered in case those conditions are met. Use this to do sync operation.
      */
-    public RuleManagement() { super(null); }
+    public RuleManagement() {
+        super(null);
+    }
 
     /**
      * Module that manages rules. manage Rules. A rule is an association between one or more
      * device's components, a set of conditions for those components, and a number of actions
      * that have to be triggered in case those conditions are met.
-     *
+     * <p/>
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Rule-Management}
      *
      * @param requestStatusHandler The handler for asynchronously request to return data and status
@@ -75,8 +76,37 @@ public class RuleManagement extends ParentModule {
         super(requestStatusHandler);
     }
 
+    //method added to get info on ruleId in test case runner
+    public static void parseAndStoreRuleId(String response, int responseCode) throws JSONException {
+        if (responseCode != 201) {
+            Log.d(TAG, "problem in storing rule ID");
+            return;
+        }
+        JSONObject ruleJson = new JSONObject(response);
+        if (Utilities.editor == null) {
+            Log.d(TAG, "Not able to access shared pref editor object to store ruleId");
+        }
+        Log.d(TAG, "rule id extracted from server response" + ruleJson.getString("externalId"));
+        Utilities.editor.putString("ruleId", ruleJson.getString("externalId"));
+        Utilities.editor.commit();
+    }
+
+    public static void parseAndStoreDraftRuleId(String response, int responseCode) throws JSONException {
+        if (responseCode != 200) {
+            Log.d(TAG, "problem in storing rule ID");
+            return;
+        }
+        JSONObject ruleJson = new JSONObject(response);
+        if (Utilities.editor == null) {
+            Log.d(TAG, "Not able to access shared pref editor object to store ruleId");
+        }
+        Utilities.editor.putString("DraftRuleId", ruleJson.getString("externalId"));
+        Utilities.editor.commit();
+    }
+
     /**
      * Get a list of all rules for the specified account.
+     *
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
@@ -92,6 +122,7 @@ public class RuleManagement extends ParentModule {
 
     /**
      * Get specific rule details for the account
+     *
      * @param ruleId the identifier for the rule to retrieve info for.
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
@@ -114,6 +145,7 @@ public class RuleManagement extends ParentModule {
 
     /**
      * Delete a specific draft rule for account.
+     *
      * @param ruleId the identifier for the rule to delete.
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
@@ -137,6 +169,7 @@ public class RuleManagement extends ParentModule {
     /**
      * Update the status of the rule. Cannot be used for changing the status of draft rule.
      * Status value should be one of the following: ["Active", "Archived", "On-hold"]
+     *
      * @param ruleId the identifier for the rule to have the status updated.
      * @param status value should be one of the following: ["Active", "Archived", "On-hold"]
      * @return For async model, return CloudResponse which wraps true if the request of REST
@@ -170,6 +203,7 @@ public class RuleManagement extends ParentModule {
 
     /**
      * Create a rule with a status - "Draft" for the specified account.
+     *
      * @param ruleName the name of the rule to create a draft
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
@@ -191,13 +225,26 @@ public class RuleManagement extends ParentModule {
         createDraftRule.setHeaders(basicHeaderList);
         createDraftRule.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.createRuleAsDraft, null);
-        return super.invokeHttpExecuteOnURL(url, createDraftRule);
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
+            @Override
+            public void readResponse(CloudResponse response) {
+                Log.d(TAG, String.valueOf(response.getCode()));
+                Log.d(TAG, response.getResponse());
+                try {
+                    parseAndStoreDraftRuleId(response.getResponse(), response.getCode());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        return super.invokeHttpExecuteOnURL(url, createDraftRule, preProcessing);
     }
 
     /**
      * Update the rule.
+     *
      * @param updateRuleObj the information that is used to update the rule with.
-     * @param ruleId the identifier for the rule to be updated.
+     * @param ruleId        the identifier for the rule to be updated.
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
@@ -225,6 +272,7 @@ public class RuleManagement extends ParentModule {
 
     /**
      * Create a rule.
+     *
      * @param ruleObj the information needed to create a new rule with.
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
@@ -246,7 +294,20 @@ public class RuleManagement extends ParentModule {
         createRule.setHeaders(basicHeaderList);
         createRule.setRequestBody(body);
         String url = objIotKit.prepareUrl(objIotKit.createRule, null);
-        return super.invokeHttpExecuteOnURL(url, createRule);
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
+            @Override
+            public void readResponse(CloudResponse response) {
+                Log.d(TAG, String.valueOf(response.getCode()));
+                Log.d(TAG, response.getResponse());
+                try {
+                    parseAndStoreRuleId(response.getResponse(), response.getCode());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        return super.invokeHttpExecuteOnURL(url, createRule, preProcessing);
     }
 
     private String createBodyForRuleCreation(Rule ruleObj) throws JSONException {
@@ -316,6 +377,7 @@ public class RuleManagement extends ParentModule {
         updateRuleStatusJson.put("status", status);
         return updateRuleStatusJson.toString();
     }
+
 
 }
 

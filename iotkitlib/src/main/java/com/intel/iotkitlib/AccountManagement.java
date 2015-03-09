@@ -29,8 +29,6 @@ import com.intel.iotkitlib.http.HttpDeleteTask;
 import com.intel.iotkitlib.http.HttpGetTask;
 import com.intel.iotkitlib.http.HttpPostTask;
 import com.intel.iotkitlib.http.HttpPutTask;
-import com.intel.iotkitlib.http.HttpTask;
-import com.intel.iotkitlib.http.HttpTaskHandler;
 import com.intel.iotkitlib.models.AuthorizationToken;
 import com.intel.iotkitlib.utils.Utilities;
 
@@ -44,21 +42,22 @@ import java.util.LinkedHashMap;
  */
 public class AccountManagement extends ParentModule {
 
-    private static final String TAG = "AccountManagement";
-
     // Errors
     public static final String ERR_ACCOUNT_NAME = "account Name cannot be empty";
     public static final String ERR_INVALID_IDS = "userId or accountId of new user cannot be null";
     public static final String ERR_INVALID_BODY = "problem with Http body creation to add user to account";
+    private static final String TAG = "AccountManagement";
 
     /**
      * Module that handles accounts and user related operations; use this to do sync operation
      */
-    public AccountManagement() { super(null); }
+    public AccountManagement() {
+        super(null);
+    }
 
     /**
      * Module that handles accounts and user related operations.
-     *
+     * <p/>
      * For more information, please refer to @link{https://github.com/enableiot/iotkit-api/wiki/Account-Management}
      *
      * @param requestStatusHandler The handler for asynchronously request to return data and status
@@ -70,6 +69,7 @@ public class AccountManagement extends ParentModule {
 
     /**
      * Create an account with a name.
+     *
      * @param accountName name of the account to be created.
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
@@ -106,6 +106,7 @@ public class AccountManagement extends ParentModule {
 
     /**
      * Get the information about an account.
+     *
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
@@ -122,6 +123,7 @@ public class AccountManagement extends ParentModule {
     /**
      * Get the account activation code which is the transient code that can be used to activate
      * devices for the account. It expires after one hour.
+     *
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
@@ -132,18 +134,33 @@ public class AccountManagement extends ParentModule {
         HttpGetTask getAccountActivationCode = new HttpGetTask();
         getAccountActivationCode.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.getActivationCode, null);
-        return super.invokeHttpExecuteOnURL(url, getAccountActivationCode);
+        RequestStatusHandler preProcessing = new RequestStatusHandler() {
+            @Override
+            public void readResponse(CloudResponse response) {
+                Log.d(TAG, String.valueOf(response.getCode()));
+                Log.d(TAG, response.getResponse());
+                try {
+                    // Store account and id in preferences
+                    AuthorizationToken.parseAndStoreActivationCode(response.getResponse());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        return super.invokeHttpExecuteOnURL(url, getAccountActivationCode, preProcessing);
     }
 
     /**
      * Force a renewal of the account activation code.
+     *
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
      * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
     public CloudResponse renewAccountActivationCode() {
-    //initiating put for account activation code
+        //initiating put for account activation code
         HttpPutTask renewActivationCode = new HttpPutTask();
         renewActivationCode.setHeaders(basicHeaderList);
         String url = objIotKit.prepareUrl(objIotKit.renewActivationCode, null);
@@ -181,6 +198,7 @@ public class AccountManagement extends ParentModule {
 
     /**
      * Delete the current account.
+     *
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
@@ -198,9 +216,10 @@ public class AccountManagement extends ParentModule {
 
     /**
      * Add another user to your account.
-     * @param accountId The account id of the other user.
+     *
+     * @param accountId     The account id of the other user.
      * @param inviteeUserId The user id of the other user.
-     * @param isAdmin The role for this user in the current account.
+     * @param isAdmin       The role for this user in the current account.
      * @return For async model, return CloudResponse which wraps true if the request of REST
      * call is valid; otherwise false. The actual result from
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.

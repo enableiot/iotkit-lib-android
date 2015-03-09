@@ -25,6 +25,8 @@ package com.intel.iotkit;
 
 import com.intel.iotkitlib.RequestStatusHandler;
 import com.intel.iotkitlib.UserManagement;
+import com.intel.iotkitlib.http.CloudResponse;
+import com.intel.iotkitlib.utils.Utilities;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -48,44 +50,34 @@ public class UserManagementTest extends ApplicationTest {
     public void testCreateNewUser() throws JSONException {
         UserManagement userManagement = new UserManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(201, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(201, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, userManagement.createNewUser("intel.aricent.iot3@gmail.com", "Password2529"));
+        CloudResponse response = userManagement.createNewUser("xxxxx@gmail.com", "xxxx");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(userManagement);
     }
 
     public void testGetUserInfo() throws JSONException {
         UserManagement userManagement = new UserManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, userManagement.getUserInfo("5465ef05cd7df9c1113aafa3"));
-        waitForServerResponse(userManagement);
-    }
-
-    public void testAcceptTermsAndConditions() throws JSONException {
-        UserManagement userManagement = new UserManagement(new RequestStatusHandler() {
-            @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
-                serverResponse = true;
-            }
-        });
-        assertEquals(true, userManagement.acceptTermsAndConditions("5465ef05cd7df9c1113aafa3", true));
+        CloudResponse response = userManagement.getUserInfo(Utilities.sharedPreferences.getString("user_id", ""));
+        assertEquals(true, response.getStatus());
         waitForServerResponse(userManagement);
     }
 
     public void testUpdateUserAttributes() throws JSONException {
         UserManagement userManagement = new UserManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
@@ -94,55 +86,61 @@ public class UserManagementTest extends ApplicationTest {
         attributes.add(new BasicNameValuePair("phone", "123456789"));
         attributes.add(new BasicNameValuePair("new", "next_string_value"));
         attributes.add(new BasicNameValuePair("another_attribute", "another_value"));
-        assertEquals(true, userManagement.updateUserAttributes("5465ef05cd7df9c1113aafa3", attributes));
+        CloudResponse response = userManagement.updateUserAttributes(Utilities.sharedPreferences.getString("user_id", ""), attributes);
+        assertEquals(true, response.getStatus());
         waitForServerResponse(userManagement);
     }
 
     public void testRequestChangePassword() throws JSONException {
         UserManagement userManagement = new UserManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, userManagement.requestChangePassword("intel.aricent.iot3@gmail.com"));
+        CloudResponse response = userManagement.requestChangePassword(Utilities.sharedPreferences.getString("email", ""));
+        assertEquals(true, response.getStatus());
         waitForServerResponse(userManagement);
     }
 
     public void testUpdateForgotPassword() throws JSONException {
         UserManagement userManagement = new UserManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, userManagement.updateForgotPassword("3jxo3jP3d1I1Toq7", "Password2529"));
+        CloudResponse response = userManagement.updateForgotPassword("mFxklxSmmfWCyei8", "Password2529");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(userManagement);
     }
 
     public void testChangePassword() throws JSONException {
         UserManagement userManagement = new UserManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, userManagement.changePassword("intel.aricent.iot3@gmail.com", "Password2529", "Password25292"));
+        CloudResponse response = userManagement.changePassword(Utilities.sharedPreferences.getString("email", "")
+                , "Password2529", "Password25292");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(userManagement);
     }
 
     public void testDeleteAUser() throws JSONException {
         UserManagement userManagement = new UserManagement(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                assertEquals(204, responseCode);
+            public void readResponse(CloudResponse response) {
+                assertEquals(204, response.getCode());
                 serverResponse = true;
             }
         });
-        assertEquals(true, userManagement.deleteAUser("54533fbbf7e1110732274b51"));
+        CloudResponse response = userManagement.deleteAUser(Utilities.sharedPreferences.getString("user_id", ""));
+        assertEquals(true, response.getStatus());
         waitForServerResponse(userManagement);
     }
 

@@ -24,6 +24,7 @@ package com.intel.iotkit;
 
 import com.intel.iotkitlib.Authorization;
 import com.intel.iotkitlib.RequestStatusHandler;
+import com.intel.iotkitlib.http.CloudResponse;
 
 
 public class AuthorizationTest extends ApplicationTest {
@@ -41,43 +42,46 @@ public class AuthorizationTest extends ApplicationTest {
     public void testGetNewAuthorizationToken() throws InterruptedException {
         Authorization getToken = new Authorization(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
         //for getting token
-        assertEquals(true, getToken.getNewAuthorizationToken
-                ("intel.aricent.iot4@gmail.com", "Password2529"));
+        CloudResponse response = getToken.getNewAuthorizationToken
+                ("xxxx@gmail.com", "xxxx");
+        assertEquals(true, response.getStatus());
         waitForServerResponse(getToken);
     }
 
     public void testGetAuthorizationTokenInfo() throws InterruptedException {
         Authorization getToken = new Authorization(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
         //for getting tokenInfo
-        assertEquals(true, getToken.getAuthorizationTokenInfo());
+        CloudResponse response = getToken.getAuthorizationTokenInfo();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(getToken);
     }
 
     public void testValidateAuthToken() throws InterruptedException {
         Authorization getToken = new Authorization(new RequestStatusHandler() {
             @Override
-            public void readResponse(int responseCode, String response) {
-                //setResponse(responseCode, response);
-                assertEquals(200, responseCode);
+            public void readResponse(CloudResponse response) {
+                //setResponse(response.getCode(), response);
+                assertEquals(200, response.getCode());
                 serverResponse = true;
             }
         });
         //for validating token
-        assertEquals(true, getToken.validateAuthToken());
+        CloudResponse response = getToken.validateAuthToken();
+        assertEquals(true, response.getStatus());
         waitForServerResponse(getToken);
     }
 
