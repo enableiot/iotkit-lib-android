@@ -156,7 +156,7 @@ public class AuthorizationManagement extends ParentModule {
      * the REST call is return asynchronously as part {@link RequestStatusHandler#readResponse}.
      * For synch model, return CloudResponse which wraps HTTP return code and response.
      */
-    public CloudResponse validateAuthToken() {
+    public CloudResponse validateAuthorizationToken() {
         //building basic header contains content-type and bearer token
         List<NameValuePair> headers;
         if ((headers = Utilities.createBasicHeadersWithBearerToken()) == null) {

@@ -62,7 +62,7 @@ public class AuthorizationToken {
                 }
             }
         });
-        authorizationManagement.validateAuthToken();
+        authorizationManagement.validateAuthorizationToken();
     }
 
     //storing token string to shared prefs
