@@ -32,7 +32,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.intel.iotkitlib.Authorization;
+import com.intel.iotkitlib.AuthorizationManagement;
 import com.intel.iotkitlib.RequestStatusHandler;
 import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.utils.Utilities;
@@ -70,7 +70,7 @@ public class MyActivity extends Activity {
 
                 //######Asynchronous Http call##########
                 //Passing valid anonymous callback creates AsyncTask to handle HTTP requests
-                Authorization getTokenAsync = new Authorization(new RequestStatusHandler() {
+                AuthorizationManagement getTokenAsync = new AuthorizationManagement(new RequestStatusHandler() {
                     //anonymous call back
                     @Override
                     public void readResponse(CloudResponse response) {
@@ -82,7 +82,7 @@ public class MyActivity extends Activity {
 
                 //######Synchronous Http call##########
                 //Sync call doing on background thread, doing on UI thread is not valid(creates NetworkOnMainThreadException)
-                final Authorization getTokenSync = new Authorization();//passing null handler creates Synchronous Http call
+                final AuthorizationManagement getTokenSync = new AuthorizationManagement();//passing null handler creates Synchronous Http call
                 //for getting token
                 new Thread(new Runnable() {
                     @Override

@@ -44,9 +44,9 @@ public class TestRunner extends InstrumentationTestRunner {
          * before running this test suite***/
 
         //Authorization Tests
-        suite.addTest(TestSuite.createTest(AuthorizationTest.class, "testGetNewAuthorizationToken"));
-        suite.addTest(TestSuite.createTest(AuthorizationTest.class, "testGetAuthorizationTokenInfo"));
-        suite.addTest(TestSuite.createTest(AuthorizationTest.class, "testValidateAuthToken"));
+        suite.addTest(TestSuite.createTest(AuthorizationManagementTest.class, "testGetNewAuthorizationToken"));
+        suite.addTest(TestSuite.createTest(AuthorizationManagementTest.class, "testGetAuthorizationTokenInfo"));
+        suite.addTest(TestSuite.createTest(AuthorizationManagementTest.class, "testValidateAuthToken"));
 
         //User management
         suite.addTest(TestSuite.createTest(UserManagementTest.class, "testGetUserInfo"));
@@ -64,7 +64,7 @@ public class TestRunner extends InstrumentationTestRunner {
         //Account Management
         suite.addTest(TestSuite.createTest(AccountManagementTest.class, "testCreateAnAccount"));
         //need fresh token after account creation, going for testGetNewAuthorizationToken again
-        suite.addTest(TestSuite.createTest(AuthorizationTest.class, "testGetNewAuthorizationToken"));
+        suite.addTest(TestSuite.createTest(AuthorizationManagementTest.class, "testGetNewAuthorizationToken"));
         suite.addTest(TestSuite.createTest(AccountManagementTest.class, "testGetAccountInformation"));
         suite.addTest(TestSuite.createTest(AccountManagementTest.class, "testRenewAccountActivationCode"));
         suite.addTest(TestSuite.createTest(AccountManagementTest.class, "testGetAccountActivationCode"));

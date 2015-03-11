@@ -24,7 +24,7 @@ package com.intel.iotkitlib.models;
 
 import android.util.Log;
 
-import com.intel.iotkitlib.Authorization;
+import com.intel.iotkitlib.AuthorizationManagement;
 import com.intel.iotkitlib.RequestStatusHandler;
 import com.intel.iotkitlib.http.CloudResponse;
 import com.intel.iotkitlib.utils.Utilities;
@@ -47,7 +47,7 @@ public class AuthorizationToken {
         storeToken(token);
         //IotKit.getInstance().authorizaionKey = token;
         //checks the validity of token
-        Authorization authorization = new Authorization(new RequestStatusHandler() {
+        AuthorizationManagement authorizationManagement = new AuthorizationManagement(new RequestStatusHandler() {
             @Override
             public void readResponse(CloudResponse response) {
                 try {
@@ -62,7 +62,7 @@ public class AuthorizationToken {
                 }
             }
         });
-        authorization.validateAuthToken();
+        authorizationManagement.validateAuthToken();
     }
 
     //storing token string to shared prefs

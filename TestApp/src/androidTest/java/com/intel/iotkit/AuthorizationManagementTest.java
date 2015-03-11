@@ -22,12 +22,12 @@
  */
 package com.intel.iotkit;
 
-import com.intel.iotkitlib.Authorization;
+import com.intel.iotkitlib.AuthorizationManagement;
 import com.intel.iotkitlib.RequestStatusHandler;
 import com.intel.iotkitlib.http.CloudResponse;
 
 
-public class AuthorizationTest extends ApplicationTest {
+public class AuthorizationManagementTest extends ApplicationTest {
     private boolean serverResponse = false;
 
     private void waitForServerResponse(Object object) {
@@ -40,7 +40,7 @@ public class AuthorizationTest extends ApplicationTest {
 
     //This method should be run before running any other,to get token
     public void testGetNewAuthorizationToken() throws InterruptedException {
-        Authorization getToken = new Authorization(new RequestStatusHandler() {
+        AuthorizationManagement getToken = new AuthorizationManagement(new RequestStatusHandler() {
             @Override
             public void readResponse(CloudResponse response) {
                 //setResponse(response.getCode(), response);
@@ -50,13 +50,13 @@ public class AuthorizationTest extends ApplicationTest {
         });
         //for getting token
         CloudResponse response = getToken.getNewAuthorizationToken
-                ("xxxx@gmail.com", "xxxx");
+                ("intelpim@gmail.com", "Intel1234");
         assertEquals(true, response.getStatus());
         waitForServerResponse(getToken);
     }
 
     public void testGetAuthorizationTokenInfo() throws InterruptedException {
-        Authorization getToken = new Authorization(new RequestStatusHandler() {
+        AuthorizationManagement getToken = new AuthorizationManagement(new RequestStatusHandler() {
             @Override
             public void readResponse(CloudResponse response) {
                 //setResponse(response.getCode(), response);
@@ -71,7 +71,7 @@ public class AuthorizationTest extends ApplicationTest {
     }
 
     public void testValidateAuthToken() throws InterruptedException {
-        Authorization getToken = new Authorization(new RequestStatusHandler() {
+        AuthorizationManagement getToken = new AuthorizationManagement(new RequestStatusHandler() {
             @Override
             public void readResponse(CloudResponse response) {
                 //setResponse(response.getCode(), response);

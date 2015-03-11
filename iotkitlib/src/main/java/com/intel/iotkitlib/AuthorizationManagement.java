@@ -40,7 +40,7 @@ import java.util.List;
 /**
  * Authorization functions
  */
-public class Authorization extends ParentModule {
+public class AuthorizationManagement extends ParentModule {
     private static final String TAG = "Authorization";
 
     // Errors
@@ -51,7 +51,7 @@ public class Authorization extends ParentModule {
     /**
      * Module that handles authorization of user; use this to do sync operation.
      */
-    public Authorization() { super(null); }
+    public AuthorizationManagement() { super(null); }
 
     /**
      * Module that handles authorization of user.
@@ -61,7 +61,7 @@ public class Authorization extends ParentModule {
      * @param requestStatusHandler The handler for asynchronously request to return data and status
      *                             from the cloud.
      */
-    public Authorization(RequestStatusHandler requestStatusHandler) {
+    public AuthorizationManagement(RequestStatusHandler requestStatusHandler) {
         super(requestStatusHandler);
     }
 
